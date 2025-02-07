@@ -2,7 +2,7 @@ import cors from "cors";
 import { config } from 'dotenv';
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import routes from "./routes/index.js"
+// import routes from "./routes/index.js"
 config({
     path:"./data/config.env",
 })
@@ -17,7 +17,7 @@ app.use(cors({
     credentials:true,
 }))
 
-app.use(routes);
+// app.use(routes);
 app.use("/",(req,res)=>{
     res.send("nice working");
 })
