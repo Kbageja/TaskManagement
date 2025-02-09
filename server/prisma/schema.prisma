@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,9 +8,54 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String 
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
   password  String
+  createdAt DateTime  @default(now())
+  groups    GroupMembers[]
+  tasks     Tasks[]
+  partneredTasks Tasks[] @relation("TaskPartners")
+  subUsers  SubUser[] @relation("User_SubUsers") // One-to-many relationship
+  SubUser SubUser[] @relation("User_Parent")
+}
+
+model SubUser {
+  id        Int    @id @default(autoincrement())
+  parent    User   @relation("User_Parent", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  Int    // No @unique for one-to-many relation
+  user      User   @relation("User_SubUsers", fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int    @unique // Ensures a SubUser is linked to only one User
+  role      String
+}
+
+model Group {
+  id        Int       @id @default(autoincrement())
+  name      String
   createdAt DateTime @default(now())
+  members   GroupMembers[]
+  tasks     Tasks[]
+}
+
+model GroupMembers {
+  id      Int   @id @default(autoincrement())
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  role    String
+}
+
+model Tasks {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+  TaskName  String
+  Priority  String
+  DeadLine  DateTime
+  Status    String
+  Partners  User[]    @relation("TaskPartners")
+  UpdatedAt DateTime  @updatedAt
 }
