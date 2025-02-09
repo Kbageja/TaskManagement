@@ -4,7 +4,7 @@ import { sendMessage } from "../middleware/message.js";
 import bcrypt from "bcrypt"
 
 dotenv.config();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 export const signup = async (req, res) => {
     try {
@@ -20,20 +20,22 @@ export const signup = async (req, res) => {
 
         const redirectTo = "https://google.com"; // Change this to your frontend URL
 
-        const { data, error } = await supabase.auth.signUp(
-            { email, password },
-            { emailRedirectTo: redirectTo }
-        );
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: redirectTo },
+        });
 
         if (error) {
             return res.status(400).json({ error: error.message });
         }
 
-        const hashedPassword =  bcrypt.hash(password,10);
+        const hashedPassword = await bcrypt.hash(password, 10); // Added await
+
         if (data?.user) {
             const { error: profileError } = await supabase
                 .from("User")
-                .insert([{ id: data.user.id, name: fullName, email, password:hashedPassword }]);
+                .insert([{ id: data.user.id, name: fullName, email, password: hashedPassword }]);
 
             if (profileError) {
                 return res.status(400).json({ error: profileError.message });
@@ -45,6 +47,7 @@ export const signup = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+
 
 export const login = async (req, res) => {
     try {

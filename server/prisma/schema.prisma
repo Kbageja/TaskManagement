@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        String       @id @default(uuid())
   name      String
   email     String    @unique
   password  String
   createdAt DateTime  @default(now())
+  group     Group[]
   groups    GroupMembers[]
   tasks     Tasks[]
   partneredTasks Tasks[] @relation("TaskPartners")
@@ -23,15 +24,17 @@ model User {
 model SubUser {
   id        Int    @id @default(autoincrement())
   parent    User   @relation("User_Parent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId  Int    // No @unique for one-to-many relation
+  parentId  String    // No @unique for one-to-many relation
   user      User   @relation("User_SubUsers", fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int    @unique // Ensures a SubUser is linked to only one User
+  userId    String    @unique // Ensures a SubUser is linked to only one User
   role      String
 }
 
 model Group {
   id        Int       @id @default(autoincrement())
   name      String
+  user      User   @relation( fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   createdAt DateTime @default(now())
   members   GroupMembers[]
   tasks     Tasks[]
@@ -42,14 +45,14 @@ model GroupMembers {
   group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId Int
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  Int
+  userId  String
   role    String
 }
 
 model Tasks {
   id        Int       @id @default(autoincrement())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
+  userId    String
   group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int
   TaskName  String

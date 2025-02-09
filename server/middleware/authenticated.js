@@ -1,4 +1,4 @@
-import { supabase } from "../controllers/AuthControllers";
+import { supabase } from "../controllers/AuthControllers.js";
 import { sendMessage } from "./message.js";
 
 export const isAuthenticated = async (req, res, next) => {
