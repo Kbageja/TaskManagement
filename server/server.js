@@ -1,14 +1,14 @@
 import cors from "cors";
-import { config } from 'dotenv';
 import cookieParser from 'cookie-parser';
 import express from 'express';
-// import routes from "./routes/index.js"
-config({
-    path:"./data/config.env",
-})
+import routes from "./routes/index.js"
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const app  = express();
 app.use(express.json());
+app.use(routes);
 app.use(express.urlencoded({ extended: true}));
 app.use(cookieParser());
 app.use(cors({
