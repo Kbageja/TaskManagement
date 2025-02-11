@@ -7,37 +7,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 model User {
   id        String       @id @default(uuid())
   name      String
   email     String    @unique
   password  String
   createdAt DateTime  @default(now())
-  group     Group[]
+
   groups    GroupMembers[]
   tasks     Tasks[]
   partneredTasks Tasks[] @relation("TaskPartners")
-  subUsers  SubUser[] @relation("User_SubUsers") // One-to-many relationship
-  SubUser SubUser[] @relation("User_Parent")
+
+  ownedGroups Group[] @relation("GroupOwner") // Groups owned by the user
+  subUsers    SubUser[] @relation("User_SubUsers") // Sub-users assigned under this user
+  parentUsers SubUser[] @relation("User_Parent")  // Parents of this user
 }
 
 model SubUser {
   id        Int    @id @default(autoincrement())
   parent    User   @relation("User_Parent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId  String    // No @unique for one-to-many relation
+  parentId  String    
   user      User   @relation("User_SubUsers", fields: [userId], references: [id], onDelete: Cascade)
-  userId    String    @unique // Ensures a SubUser is linked to only one User
+  userId    String
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int  
   role      String
+
+  @@unique([parentId, userId, groupId])  // Prevents duplicate entries
 }
 
 model Group {
   id        Int       @id @default(autoincrement())
   name      String
-  user      User   @relation( fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
+  owner     User      @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String
+  createdAt DateTime  @default(now())
   members   GroupMembers[]
   tasks     Tasks[]
+  subUsers  SubUser[]
 }
 
 model GroupMembers {
