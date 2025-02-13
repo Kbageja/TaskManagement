@@ -7,22 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
   id        String       @id @default(uuid())
   name      String
   email     String    @unique
   password  String
   createdAt DateTime  @default(now())
-
   groups    GroupMembers[]
-  tasks     Tasks[]
+  // Reverse relation for assigned tasks
+  tasks     Tasks[] @relation("assignedUser")
+  // Reverse relation for tasks assigned as a parent
+  assignedTasks Tasks[] @relation("taskParent")
   partneredTasks Tasks[] @relation("TaskPartners")
-
-  ownedGroups Group[] @relation("GroupOwner") // Groups owned by the user
-  subUsers    SubUser[] @relation("User_SubUsers") // Sub-users assigned under this user
-  parentUsers SubUser[] @relation("User_Parent")  // Parents of this user
+  ownedGroups Group[] @relation("GroupOwner")
+  subUsers    SubUser[] @relation("User_SubUsers")
+  parentUsers SubUser[] @relation("User_Parent")
 }
 
 model SubUser {
@@ -34,8 +33,9 @@ model SubUser {
   group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int  
   role      String
+  level     Int
 
-  @@unique([parentId, userId, groupId])  // Prevents duplicate entries
+  @@unique([parentId, userId, groupId])
 }
 
 model Group {
@@ -56,12 +56,18 @@ model GroupMembers {
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
   role    String
+  level   Int
 }
 
 model Tasks {
   id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // The user who is assigned the task
+  user      User      @relation("assignedUser", fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  // The parent user who assigned the task
+  parent    User      @relation("taskParent", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  String
   group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int
   TaskName  String
@@ -71,3 +77,4 @@ model Tasks {
   Partners  User[]    @relation("TaskPartners")
   UpdatedAt DateTime  @updatedAt
 }
+
