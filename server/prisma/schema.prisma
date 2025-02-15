@@ -75,6 +75,7 @@ model Tasks {
   Status    String
   Partners  User[]    @relation("TaskPartners")
   UpdatedAt DateTime  @updatedAt
+  CreatedAt DateTime @default(now())
 }
 
 model User {

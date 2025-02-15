@@ -231,3 +231,141 @@ export const updateTask = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+// Get task analytics (group-wise & collective)
+export const getTaskAnalytics = async (req, res) => {
+    try {
+        const { userId } = req.params; // Get userId from URL params
+
+        // Fetch all tasks assigned to the user
+        const tasks = await prisma.tasks.findMany({
+            where: { userId:userId },
+        });
+
+        if (!tasks.length) {
+            return res.status(404).json({ message: "No tasks found for this user" });
+        }
+
+        // Group tasks by groupId
+        const groupedTasks = tasks.reduce((acc, task) => {
+            if (!acc[task.groupId]) acc[task.groupId] = [];
+            acc[task.groupId].push(task);
+            return acc;
+        }, {});
+
+        let collectiveStats = {
+            totalTasks: tasks.length,
+            completedTasks: 0,
+            onTimeTasks: 0,
+            delayedTasks: 0,
+            avgCompletionTime: 0,
+        };
+
+        let groupWiseStats = {};
+
+        Object.keys(groupedTasks).forEach(groupId => {
+            const groupTasks = groupedTasks[groupId];
+            const completedTasks = groupTasks.filter(task => task.Status === "Completed");
+            const delayedTasks = completedTasks.filter(task => new Date(task.UpdatedAt) > new Date(task.DeadLine));
+            const onTimeTasks = completedTasks.length - delayedTasks.length;
+
+            const avgCompletionTime = completedTasks.reduce((sum, task) => {
+                return sum + (new Date(task.UpdatedAt) - new Date(task.CreatedAt));
+            }, 0) / (completedTasks.length || 1);
+
+            groupWiseStats[groupId] = {
+                totalTasks: groupTasks.length,
+                completedTasks: completedTasks.length,
+                onTimeTasks,
+                delayedTasks: delayedTasks.length,
+                avgCompletionTime: avgCompletionTime / (1000 * 60 * 60), // Convert to hours
+            };
+
+            // Update collective statistics
+            collectiveStats.completedTasks += completedTasks.length;
+            collectiveStats.onTimeTasks += onTimeTasks;
+            collectiveStats.delayedTasks += delayedTasks.length;
+            collectiveStats.avgCompletionTime += avgCompletionTime;
+        });
+
+        // Normalize average completion time for collective stats
+        collectiveStats.avgCompletionTime /= Object.keys(groupWiseStats).length || 1;
+        collectiveStats.avgCompletionTime /= (1000 * 60 * 60); // Convert to hours
+
+        return res.status(200).json({ collectiveStats, groupWiseStats });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Get productivity trends (group-wise & collective)
+export const getProductivityTrends = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Fetch tasks completed by the user
+        const tasks = await prisma.tasks.findMany({
+            where: { userId: userId, Status: "Completed" },
+        });
+
+        if (!tasks.length) {
+            return res.status(404).json({ message: "No completed tasks found" });
+        }
+
+        let collectiveTrends = {};
+        let groupWiseTrends = {};
+
+        tasks.forEach(task => {
+            const month = new Date(task.UpdatedAt).getMonth() + 1; // Fix: Adjust month indexing
+            const groupId = task.groupId;
+
+            // Update collective trends
+            collectiveTrends[month] = (collectiveTrends[month] || 0) + 1;
+
+            // Update group-wise trends
+            if (!groupWiseTrends[groupId]) groupWiseTrends[groupId] = {};
+            groupWiseTrends[groupId][month] = (groupWiseTrends[groupId][month] || 0) + 1;
+        });
+
+        return res.status(200).json({ collectiveTrends, groupWiseTrends });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+// Get peak working hours (group-wise & collective)
+export const getPeakHours = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Fetch tasks completed by the user
+        const tasks = await prisma.tasks.findMany({
+            where: { userId: userId, Status: "Completed" },
+        });
+
+        if (!tasks.length) {
+            return res.status(404).json({ message: "No completed tasks found" });
+        }
+
+        let collectivePeakHours = {};
+        let groupWisePeakHours = {};
+
+        tasks.forEach(task => {
+            const hour = new Date(task.UpdatedAt).getHours();
+            const groupId = task.groupId;
+            // Update collective peak hours
+            collectivePeakHours[hour] = (collectivePeakHours[hour] || 0) + 1;
+            // Update group-wise peak hours
+            if (!groupWisePeakHours[groupId]) groupWisePeakHours[groupId] = {};
+            groupWisePeakHours[groupId][hour] = (groupWisePeakHours[groupId][hour] || 0) + 1;
+        });
+
+        return res.status(200).json({ collectivePeakHours, groupWisePeakHours });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
