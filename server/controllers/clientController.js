@@ -64,12 +64,12 @@ export const getAllGroups = async (req, res) => {
                     include: {
                         user: {
                             include: {
-                                tasks: true, // tasks of the user
+                                tasks: true, // Get all tasks, filter later
                                 parentUsers: {
                                     include: {
                                         user: {
                                             include: {
-                                                tasks: true, // tasks of the parent user
+                                                tasks: true, // Get parent user tasks, filter later
                                             },
                                         },
                                     },
@@ -82,16 +82,23 @@ export const getAllGroups = async (req, res) => {
             },
         });
 
-        // Now filter parentUsers to match the correct groupId
+        // Filter out unrelated tasks and parentUsers
         const filteredGroups = groups.map((group) => ({
             ...group,
             members: group.members.map((member) => ({
                 ...member,
                 user: {
                     ...member.user,
-                    parentUsers: member.user.parentUsers.filter(
-                        (pu) => pu.groupId === group.id
-                    ),
+                    tasks: member.user.tasks.filter(task => task.groupId === group.id), // ✅ Only tasks from this group
+                    parentUsers: member.user.parentUsers
+                        .filter(parent => parent.groupId === group.id) // ✅ Keep only parentUsers belonging to this group
+                        .map(parent => ({
+                            ...parent,
+                            user: {
+                                ...parent.user,
+                                tasks: parent.user.tasks.filter(task => task.groupId === group.id), // ✅ Only parent user tasks from this group
+                            },
+                        })),
                 },
             })),
         }));
@@ -253,6 +260,160 @@ export const deleteSubUser = async (req, res) => {
         res.status(500).json({ success: false, message: "Error deleting sub-user", error: error.message });
     }
 };
+export const generateInviteLink = async (req, res) => {
+    try {
+        const { groupId } = req.body;
+        const inviterId = req.user.id; // User generating the invite link (parent)
 
+        // Check if the group exists and the user is a member of the group
+        const group = await prisma.group.findUnique({ where: { id: groupId } });
+        if (!group) {
+            return res.status(404).json({ success: false, message: "Group not found" });
+        }
 
+        const member = await prisma.groupMembers.findFirst({
+            where: { groupId, userId: inviterId },
+        });
+        if (!member) {
+            return res.status(403).json({ success: false, message: "You are not a member of this group" });
+        }
 
+        // Create a unique invite token
+        const token = Math.random().toString(36).substring(2); // Simple random string (use a stronger method for production)
+
+        // Set expiration time (e.g., 24 hours from now)
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        // Create invite record with parentId (inviterId)
+        const invite = await prisma.invite.create({
+            data: {
+                token,
+                groupId,
+                inviterId,  // Storing inviter as parentId
+                status: 'pending',
+                expiresAt,
+            },
+        });
+
+        // Generate the invite link
+        const inviteLink = `http://localhost:6000/group/invite/${token}`;
+
+        return res.status(201).json({
+            success: true,
+            message: "Invite link generated successfully",
+            inviteLink,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error generating invite link", error: error.message });
+    }
+};
+export const acceptInvite = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const inviteeId = req.user.id; // User accepting the invite
+
+        // Find the invite by token
+        const invite = await prisma.invite.findUnique({ where: { token } });
+
+        if (!invite) {
+            return res.status(404).json({ success: false, message: "Invalid invite link" });
+        }
+
+        // Check if the invite has expired
+        const currentDate = new Date();
+        if (invite.expiresAt < currentDate) {
+            return res.status(400).json({ success: false, message: "Invite link has expired" });
+        }
+
+        // Check if the invite is already used
+        if (invite.status === 'accepted') {
+            return res.status(400).json({ success: false, message: "Invite already used" });
+        }
+
+        // Get parentId from the invite (inviterId)
+        const parentId = invite.inviterId;
+
+        // Get the parent's level in the group
+        const parentMember = await prisma.groupMembers.findFirst({
+            where: { groupId: invite.groupId, userId: parentId },
+            select: { level: true },
+        });
+
+        if (!parentMember) {
+            return res.status(404).json({ success: false, message: "Parent not found in the group" });
+        }
+
+        const parentLevel = parentMember.level;
+
+        // Start a transaction to ensure both inserts succeed
+        const [groupMember, subUser] = await prisma.$transaction([
+            // Add the invitee as a member of the group
+            prisma.groupMembers.create({
+                data: {
+                    groupId: invite.groupId,
+                    userId: inviteeId,
+                    role: 'member', // You can adjust the role as needed
+                    level: parentLevel + 1, // Assign the level based on the parent's level
+                },
+            }),
+            // Add the invitee as a subUser
+            prisma.subUser.create({
+                data: {
+                    parentId: parentId, // The inviter (parent)
+                    userId: inviteeId, // The invitee
+                    groupId: invite.groupId,
+                    role: 'subUser', // Assigning subUser role
+                    level: parentLevel + 1, // Assign the level based on the parent's level
+                },
+            }),
+        ]);
+
+        // Update invite status to accepted and store inviteeId
+        await prisma.invite.update({
+            where: { id: invite.id },
+            data: {
+                inviteeId,
+                status: 'accepted',
+                usedAt: new Date(),
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Invite accepted successfully",
+            groupId: invite.groupId,
+            groupMember,
+            subUser,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error accepting invite", error: error.message });
+    }
+};
+export const rejectInvite = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const inviteeId = req.user.id;
+        // Find the invite by token
+        const invite = await prisma.invite.findUnique({ where: { token } });
+        if (!invite) {
+            return res.status(404).json({ success: false, message: "Invalid invite link" });
+        }
+        // Reject the invite
+        if (invite.status === 'accepted') {
+            return res.status(400).json({ success: false, message: "Invite already accepted" });
+        }
+        await prisma.invite.update({
+            where: { id: invite.id },
+            data: {
+                status: 'expired',  // Mark the invite as expired
+            },
+        });
+        return res.status(200).json({ success: true, message: "Invite rejected successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error rejecting invite", error: error.message });
+    }
+};

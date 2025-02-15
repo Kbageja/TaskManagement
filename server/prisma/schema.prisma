@@ -7,22 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String       @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  groups    GroupMembers[]
-  // Reverse relation for assigned tasks
-  tasks     Tasks[] @relation("assignedUser")
-  // Reverse relation for tasks assigned as a parent
-  assignedTasks Tasks[] @relation("taskParent")
-  partneredTasks Tasks[] @relation("TaskPartners")
-  ownedGroups Group[] @relation("GroupOwner")
-  subUsers    SubUser[] @relation("User_SubUsers")
-  parentUsers SubUser[] @relation("User_Parent")
-}
+// model User {
+//   id        String       @id @default(uuid())
+//   name      String
+//   email     String    @unique
+//   password  String
+//   createdAt DateTime  @default(now())
+//   groups    GroupMembers[]
+//   // Reverse relation for assigned tasks
+//   tasks     Tasks[] @relation("assignedUser")
+//   // Reverse relation for tasks assigned as a parent
+//   assignedTasks Tasks[] @relation("taskParent")
+//   partneredTasks Tasks[] @relation("TaskPartners")
+//   ownedGroups Group[] @relation("GroupOwner")
+//   subUsers    SubUser[] @relation("User_SubUsers")
+//   parentUsers SubUser[] @relation("User_Parent")
+// }
 
 model SubUser {
   id        Int    @id @default(autoincrement())
@@ -34,20 +34,19 @@ model SubUser {
   groupId   Int  
   role      String
   level     Int
-
   @@unique([parentId, userId, groupId])
 }
 
-model Group {
-  id        Int       @id @default(autoincrement())
-  name      String
-  owner     User      @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId   String
-  createdAt DateTime  @default(now())
-  members   GroupMembers[]
-  tasks     Tasks[]
-  subUsers  SubUser[]
-}
+// model Group {
+//   id        Int       @id @default(autoincrement())
+//   name      String
+//   owner     User      @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+//   ownerId   String
+//   createdAt DateTime  @default(now())
+//   members   GroupMembers[]
+//   tasks     Tasks[]
+//   subUsers  SubUser[]
+// }
 
 model GroupMembers {
   id      Int   @id @default(autoincrement())
@@ -77,4 +76,56 @@ model Tasks {
   Partners  User[]    @relation("TaskPartners")
   UpdatedAt DateTime  @updatedAt
 }
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  password     String
+  createdAt    DateTime     @default(now())
+  groups       GroupMembers[]
+  tasks        Tasks[]      @relation("assignedUser")
+  assignedTasks Tasks[]     @relation("taskParent")
+  partneredTasks Tasks[]    @relation("TaskPartners")
+  ownedGroups  Group[]      @relation("GroupOwner")
+  subUsers     SubUser[]    @relation("User_SubUsers")
+  parentUsers  SubUser[]    @relation("User_Parent")
+  
+  // Reverse relation for invites sent by the user
+  invitesSent  Invite[]     @relation("Inviter")
+  
+  // Reverse relation for invites received by the user
+  invitesReceived Invite[]  @relation("Invitee")
+}
+
+model Group {
+  id         Int        @id @default(autoincrement())
+  name       String
+  owner      User       @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId    String
+  createdAt  DateTime   @default(now())
+  members    GroupMembers[]
+  tasks      Tasks[]
+  subUsers   SubUser[]
+  
+  // Reverse relation for invites related to this group
+  invites    Invite[]   @relation("GroupInvites")
+}
+
+model Invite {
+  id          Int       @id @default(autoincrement())
+  token       String    @unique
+  group       Group     @relation("GroupInvites", fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int
+  inviter     User      @relation("Inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviterId   String
+  invitee     User?     @relation("Invitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviteeId   String?
+  status      String    // e.g., 'pending', 'accepted', 'expired'
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime  // Optional: Set expiration time for the invite
+  usedAt      DateTime? // Track when the invite was used, if applicable
+}
+
+
 
