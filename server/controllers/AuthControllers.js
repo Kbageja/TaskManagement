@@ -8,18 +8,19 @@ export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPAB
 
 export const signup = async (req, res) => {
     try {
-        const { email, password, fullName } = req.body;
+        const { email, password, name } = req.body;
 
-        if (!email || !password || !fullName) {
-            return sendMessage({ status: 400, message: "All fields are required" })(req, res);
+        if (!email || !password || !name) {
+            return res.status(400).json({ message: "All fields are required" });
         }
 
         if (password.length < 8) {
-            return sendMessage({ status: 400, message: "Password must be at least 8 characters long" })(req, res);
+            return res.status(400).json({ message: "Password must be at least 8 characters long" });
         }
 
-        const redirectTo = "https://google.com"; // Change this to your frontend URL
+        const redirectTo = "https://www.google.com/"; // Change this to your actual frontend URL
 
+        // Step 1: Register user in Supabase and send confirmation email
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -30,24 +31,54 @@ export const signup = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10); // Added await
+        return res.status(200).json({
+            message: "Signup initiated. Please check your email to verify your account.",
+            userId: data?.user?.id,
+        });
 
-        if (data?.user) {
-            const { error: profileError } = await supabase
-                .from("User")
-                .insert([{ id: data.user.id, name: fullName, email, password: hashedPassword }]);
-
-            if (profileError) {
-                return res.status(400).json({ error: profileError.message });
-            }
-        }
-
-        res.status(201).json({ message: "Signup successful. Please check your email for verification." });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Server error" });
     }
 };
+export const verifyEmail = async (req, res) => {
+    try {
+        const { userId, email, password, name } = req.body;
 
+        if (!userId || !email || !password || !name) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // ✅ Step 1: Check if the email is verified using Supabase Auth API
+        const { data: userData, error: fetchError } = await supabase.auth.admin.getUserById(userId);
+
+        if (fetchError) {
+            console.error("Error fetching user data:", fetchError);
+            return res.status(500).json({ error: "Error checking email verification." });
+        }
+
+        if (!userData?.user?.email_confirmed_at) {
+            return res.status(400).json({ message: "Email not verified. Please check your inbox." });
+        }
+
+        // ✅ Step 2: Hash password and store user in the "User" table
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const { error: profileError } = await supabase
+            .from("User")
+            .insert([{ id: userId, name, email, password: hashedPassword }]);
+
+        if (profileError) {
+            return res.status(400).json({ error: profileError.message });
+        }
+
+        return res.status(200).json({ message: "Email verified and user registered successfully!" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+};
 
 export const login = async (req, res) => {
     try {
@@ -68,7 +99,6 @@ export const login = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
-
 export const isLoggedIn = async (req, res) => {
     try {
         const { data, error } = await supabase.auth.getSession();
@@ -85,7 +115,6 @@ export const isLoggedIn = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
-
 export const logout = async (req, res) => {
     try {
         const { error } = await supabase.auth.signOut();

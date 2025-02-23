@@ -7,15 +7,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const app  = express();
+app.use(cors({
+    origin:[process.env.FRONTENDURL||"http://localhost:3000"],
+    methods:["GET","POST","PUT","DELETE"],
+    credentials:true,
+}))
 app.use(express.json());
 app.use(routes);
 app.use(express.urlencoded({ extended: true}));
 app.use(cookieParser());
-app.use(cors({
-    origin:[process.env.FRONTENDURL],
-    methods:["GET","POST","PUT","DELETE"],
-    credentials:true,
-}))
+console.log(process.env.FRONTENDURL);
+
+
 
 // app.use(routes);
 app.use("/",(req,res)=>{
