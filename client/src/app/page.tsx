@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 
+import { AuthContext } from "./context/authcontext";
+import { useRouter } from "next/navigation";
+
 // Form Schema
 const formSchema = z.object({
   email: z.string().min(1, { message: "Required" }).email("Invalid email"),
@@ -27,6 +30,20 @@ const formSchema = z.object({
 });
 
 const Home = () => {
+  const router = useRouter();
+  const auth = useContext(AuthContext);
+  
+  // Check if user is already authenticated and not in loading state
+  const isAuthenticated = auth?.data?.user?.id;
+  const isLoading = auth?.isLoading;
+
+  useEffect(() => {
+    // Only redirect if authentication check is complete and user is authenticated
+    if (!isLoading && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: "", password: "" },
@@ -35,8 +52,17 @@ const Home = () => {
   const { mutate, isPending } = useLogin();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    //("Submitting login with:", values);
     mutate(values);
+  }
+
+  // Show loading indicator while checking auth status
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-black via-black to-purple-900">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      </div>
+    );
   }
 
   return (

@@ -6,8 +6,8 @@ export function getAuthentication() {
     return useQuery({
       queryKey: ["isAuthenticated"],
       queryFn: () => getUser(),
-      staleTime: Infinity,
-      gcTime: 10 * 60 * 1000,
+      staleTime: 0,
+      gcTime: 0,
     });
   }
 

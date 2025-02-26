@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { useRouter } from "next/router";
+import { AuthContext } from "../context/authcontext";
+
 
 // Form Schema
 const formSchema = z.object({
@@ -30,6 +33,20 @@ const formSchema = z.object({
 type RegisterData = z.infer<typeof formSchema>;
 
 const Signup = () => {
+  const router = useRouter();
+  const auth = useContext(AuthContext);
+  
+  // Check if user is already authenticated and not in loading state
+  const isAuthenticated = auth?.data?.user?.id;
+  const isLoading = auth?.isLoading;
+
+  useEffect(() => {
+    // Only redirect if authentication check is complete and user is authenticated
+    if (!isLoading && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+  
   const form = useForm<RegisterData>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", email: "", password: "" },

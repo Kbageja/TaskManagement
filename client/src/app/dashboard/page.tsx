@@ -1,6 +1,8 @@
 "use client";
 
-export default function Dashboard() {
+
+
+const Dashboard=()=> {
   return (
     <div>
       <h1>Dashboard</h1>
@@ -8,3 +10,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;

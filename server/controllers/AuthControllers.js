@@ -94,7 +94,7 @@ export const login = async (req, res) => {
             return sendMessage({ status: 401, message: "Invalid email or password" })(req, res);
         }
 
-        res.status(200).json({ message: "Login successful" });
+        res.status(200).json({ message: "Login successful",data });
     } catch (error) {
         res.status(500).json({ error: "Server error" });
     }
