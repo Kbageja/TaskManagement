@@ -110,7 +110,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                 Help
               </a>
               <button
-                className="px-4 py-1.5 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-full"
+                className="px-4 py-2.5 text-sm font-medium border border-black-1px text-white bg-black hover:bg-white hover:text-black rounded-full"
                 onClick={handleLogout}
                 disabled={isPending} // Disable button while logging out
               >

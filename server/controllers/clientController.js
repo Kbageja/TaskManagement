@@ -69,7 +69,8 @@ export const getAllGroups = async (req, res) => {
                                     include: {
                                         user: {
                                             include: {
-                                                tasks: true, // Get parent user tasks, filter later
+                                                tasks: true,
+                                                parentUsers:true, // Get parent user tasks, filter later
                                             },
                                         },
                                     },
