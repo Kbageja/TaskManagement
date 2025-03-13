@@ -118,6 +118,7 @@ export const deleteGroup = async (req, res) => {
     try {
         const groupId = Number(req.params.groupId);
         const userId = req.user.id; // Assuming you have user ID from authentication
+        console.log(groupId+userId)
 
         // Check if the group exists
         const group = await prisma.group.findUnique({ where: { id: groupId } });
