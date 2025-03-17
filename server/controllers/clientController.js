@@ -50,70 +50,89 @@ export const createGroup = async (req, res) => {
 };
 export const getAllGroups = async (req, res) => {
     try {
-        const userId = req.user.id;
-
-        const groups = await prisma.group.findMany({
-            where: {
-                OR: [
-                    { ownerId: userId },
-                    { members: { some: { userId: userId } } },
-                ],
-            },
+      const userId = req.user.id;
+      
+      // Helper function to create a recursive include pattern for Prisma
+      const createRecursiveInclude = (depth = 100) => {
+        if (depth <= 0) return true;
+        
+        return {
+          include: {
+            user: {
+              include: {
+                tasks: true,
+                parentUsers: createRecursiveInclude(depth - 1)
+              }
+            }
+          }
+        };
+      };
+  
+      const groups = await prisma.group.findMany({
+        where: {
+          OR: [
+            { ownerId: userId },
+            { members: { some: { userId: userId } } },
+          ],
+        },
+        include: {
+          members: {
             include: {
-                members: {
-                    include: {
-                        user: {
-                            include: {
-                                tasks: true, // Get all tasks, filter later
-                                parentUsers: {
-                                    include: {
-                                        user: {
-                                            include: {
-                                                tasks: true,
-                                                parentUsers:true, // Get parent user tasks, filter later
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                tasks: true, // tasks directly related to the group
-            },
-        });
-
-        // Filter out unrelated tasks and parentUsers
-        const filteredGroups = groups.map((group) => ({
-            ...group,
-            members: group.members.map((member) => ({
-                ...member,
-                user: {
-                    ...member.user,
-                    tasks: member.user.tasks.filter(task => task.groupId === group.id), // ✅ Only tasks from this group
-                    parentUsers: member.user.parentUsers
-                        .filter(parent => parent.groupId === group.id) // ✅ Keep only parentUsers belonging to this group
-                        .map(parent => ({
-                            ...parent,
-                            user: {
-                                ...parent.user,
-                                tasks: parent.user.tasks.filter(task => task.groupId === group.id), // ✅ Only parent user tasks from this group
-                            },
-                        })),
-                },
-            })),
-        }));
-
-        return sendData({
-            status: 200,
-            message: "Groups fetched successfully",
-            Data: filteredGroups,
-        })(req, res);
+              user: {
+                include: {
+                  tasks: true,
+                  parentUsers: createRecursiveInclude(3) // Recursive include with depth limit
+                }
+              }
+            }
+          },
+          tasks: true,
+        },
+      });
+  
+      // Recursive function to filter user data including nested parentUsers
+      const filterUserData = (user, groupId) => {
+        if (!user) return null;
+        
+        // Filter tasks for the current user
+        const filteredTasks = user.tasks ? user.tasks.filter(task => task.groupId === groupId) : [];
+        
+        // Filter and recursively process parentUsers
+        const filteredParentUsers = user.parentUsers 
+          ? user.parentUsers
+              .filter(parent => parent.groupId === groupId)
+              .map(parent => ({
+                ...parent,
+                user: filterUserData(parent.user, groupId)
+              }))
+          : [];
+        
+        return {
+          ...user,
+          tasks: filteredTasks,
+          parentUsers: filteredParentUsers
+        };
+      };
+  
+      // Filter groups using the recursive function
+      const filteredGroups = groups.map((group) => ({
+        ...group,
+        members: group.members.map((member) => ({
+          ...member,
+          user: filterUserData(member.user, group.id),
+        })),
+      }));
+  
+      return sendData({
+        status: 200,
+        message: "Groups fetched successfully",
+        Data: filteredGroups,
+      })(req, res);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
     }
-};
+  };
 export const deleteGroup = async (req, res) => {
     try {
         const groupId = Number(req.params.groupId);
@@ -264,8 +283,8 @@ export const deleteSubUser = async (req, res) => {
 };
 export const generateInviteLink = async (req, res) => {
     try {
-        const { groupId } = req.body;
-        const inviterId = req.user.id; // User generating the invite link (parent)
+        const { GroupId ,inviterId} = req.body;
+        const groupId  = parseInt(GroupId);
 
         // Check if the group exists and the user is a member of the group
         const group = await prisma.group.findUnique({ where: { id: groupId } });
@@ -285,7 +304,7 @@ export const generateInviteLink = async (req, res) => {
 
         // Set expiration time (e.g., 24 hours from now)
         const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24);
+        expiresAt.setHours(expiresAt.getHours() + 12);
 
         // Create invite record with parentId (inviterId)
         const invite = await prisma.invite.create({
@@ -299,7 +318,7 @@ export const generateInviteLink = async (req, res) => {
         });
 
         // Generate the invite link
-        const inviteLink = `http://localhost:6000/group/invite/${token}`;
+        const inviteLink = `http://localhost:3000/invite/${token}`;
 
         return res.status(201).json({
             success: true,
@@ -397,7 +416,6 @@ export const acceptInvite = async (req, res) => {
 export const rejectInvite = async (req, res) => {
     try {
         const { token } = req.params;
-        const inviteeId = req.user.id;
         // Find the invite by token
         const invite = await prisma.invite.findUnique({ where: { token } });
         if (!invite) {
@@ -407,15 +425,86 @@ export const rejectInvite = async (req, res) => {
         if (invite.status === 'accepted') {
             return res.status(400).json({ success: false, message: "Invite already accepted" });
         }
-        await prisma.invite.update({
-            where: { id: invite.id },
-            data: {
-                status: 'expired',  // Mark the invite as expired
-            },
-        });
-        return res.status(200).json({ success: true, message: "Invite rejected successfully" });
+
+        return res.status(200).json({ success: true, message: "Invite Exist" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Error rejecting invite", error: error.message });
+    }
+};
+export const getGroupLevelWise = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Fetch all groups where the user is the owner or a member
+        const groups = await prisma.group.findMany({
+            where: {
+                OR: [
+                    { ownerId: userId },
+                    { members: { some: { userId: userId } } },
+                ],
+            },
+            include: {
+                members: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Process each group to filter members
+        const filteredGroups = groups.map((group) => {
+            // Find the req.user's level in this group
+            const userMember = group.members.find((member) => member.userId === userId);
+            const userLevel = userMember ? userMember.level : null;
+
+            // If the user is not a member of this group, skip filtering
+            if (userLevel === null) {
+                return {
+                    id: group.id,
+                    name: group.name,
+                    ownerId: group.ownerId,
+                    createdAt: group.createdAt,
+                    members: [], // No members to show
+                };
+            }
+
+            // Filter members based on their level and exclude the req.user
+            const filteredMembers = group.members
+                .filter((member) => {
+                    // Exclude the req.user
+                    // Ensure the member's level is greater than or equal to the user's level in this group
+                    return member.level >= userLevel;
+                })
+                .map((member) => ({
+                    id: member.user.id,
+                    name: member.user.name,
+                    level: member.level,
+                }));
+
+            return {
+                id: group.id,
+                name: group.name,
+                ownerId: group.ownerId,
+                createdAt: group.createdAt,
+                members: filteredMembers,
+                userLevel:userLevel,
+            };
+        });
+
+        return sendData({
+            status: 200,
+            message: "Filtered groups fetched successfully",
+            Data: filteredGroups, // Return the filtered groups
+        })(req, res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
     }
 };

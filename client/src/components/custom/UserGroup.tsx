@@ -47,6 +47,7 @@ interface UserComponentProps {
 
 const UserComponent = ({ user,role, groupId, level = 1 }: UserComponentProps) => {
     const [expanded, setExpanded] = useState(false);
+    console.log(user,"userComponent");
   
     const toggleExpanded = () => {
       setExpanded(!expanded);
@@ -60,7 +61,7 @@ const UserComponent = ({ user,role, groupId, level = 1 }: UserComponentProps) =>
           onClick={toggleExpanded}
         >
           <div className="flex items-center space-x-2">
-            <span className="font-medium">{user.name}</span>
+            <span className="font-medium">{user.name||""}</span>
             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
               {role}
             </span>

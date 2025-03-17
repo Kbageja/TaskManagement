@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createGroup, deleteGroup, getGroup } from "./api";
+import { AcceptInvite, checkInvite, createGroup, deleteGroup, GenerateInvite, getGroup } from "./api";
 import axios from "axios";
 import Notify from "@/lib/notify";
+import { useRouter } from "next/navigation";
 import { DummyDataType, Group } from "@/types/group";
+import { redirect } from "next/navigation";
 
 
 
@@ -37,7 +39,7 @@ export const useDeleteGroup = () => {
     });
   };
 
-  export const useCreateGroup = () => {
+export const useCreateGroup = () => {
     const queryClient = useQueryClient();
   
     return useMutation({
@@ -56,4 +58,37 @@ export const useDeleteGroup = () => {
       },
     });
   };
-  ;
+export const useAcceptInvite = () => {  
+  const router = useRouter(); // Initialize Next.js router
+    return useMutation({
+      mutationFn: (InviteToken: string) => AcceptInvite(InviteToken), // Pass only `InviteToken`
+      onSuccess: () => {
+        console.log("success accepted Invite");
+        router.push("/dashboard"); // Redirect to Dashboard after success  
+      },
+      onError: (error) => {
+        console.error('onError: Rolling back UI update');
+  
+        if (axios.isAxiosError(error)) {
+          Notify('error', error?.response?.data?.message);
+        }
+      },
+    });
+  }; 
+  
+  export const useGenerateInvite = () => {  
+    return useMutation({
+      mutationFn: ({ GroupId, inviterId }: { GroupId: string; inviterId: string }) =>
+        GenerateInvite(GroupId, inviterId),
+      onSuccess: (data) => {
+        return data;
+      },
+      onError: (error) => {
+        console.error('onError: Rolling back UI update');
+  
+        if (axios.isAxiosError(error)) {
+          Notify('error', error?.response?.data?.message);
+        }
+      },
+    });
+  };

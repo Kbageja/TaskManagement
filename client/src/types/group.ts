@@ -40,6 +40,22 @@ export interface Task {
     members: Member[];
     tasks: Task[];
   }
+
+  export interface GroupLevelWise {
+    id: number;
+    name: string;
+    ownerId: string;
+    createdAt: string;
+    members: MembersLevel[];
+    userLevel:number;
+  }
+
+  export interface MembersLevel {
+    id: number;
+    name: string;
+    level:number;
+    // Add other member properties as needed
+  }
   
   export  interface Member {
     id: number;
@@ -53,4 +69,9 @@ export interface Task {
   export  interface DummyDataType {
       message: string;
       Data: Group[];
+    }
+
+  export  interface GroupLevelData {
+      message: string;
+      Data: GroupLevelWise[];
     }

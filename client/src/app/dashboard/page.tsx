@@ -77,6 +77,7 @@ interface DummyDataType {
 
 const Dashboard = () => {
   const { data: dummyData, isLoading, isError, error } = getGroups();
+  console.log(dummyData,"dashboard")
 
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(
     {}

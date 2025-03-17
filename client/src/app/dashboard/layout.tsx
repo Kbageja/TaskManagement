@@ -7,6 +7,7 @@ import {
   LineChart,
   CircleHelp,
   Search,
+  CopyIcon,
 } from "lucide-react";
 import { 
   Dialog, 
@@ -23,7 +24,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useRouter } from "next/navigation";
 import { useLogout } from "@/services/user/mutations";
 import { AuthContext } from "../context/authcontext";
-import { useCreateGroup } from "@/services/groups/mutations";
+import { useCreateGroup, useGenerateInvite } from "@/services/groups/mutations";
+import { getGroupsLevelWise } from "@/services/groups/queries";
+import { MembersLevel } from "@/types/group";
 
 
 // Define types for the layout props
@@ -40,8 +43,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
   
   // Form states
   const [groupName, setGroupName] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState("");
-  const [selectedParent, setSelectedParent] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedParent, setSelectedParent] = useState<string | null>(null);
+  const [filteredMembers, setFilteredMembers] = useState<MembersLevel[]>([]);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+
+  const { mutate: generateInvite } = useGenerateInvite();
   
   // Check if user data exists and has an ID
   const isAuthenticated = auth?.data?.user?.id;
@@ -65,24 +72,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
     });
   };
 
-  const groups = [
-    { id: 1, name: "Development Team" },
-    { id: 2, name: "Marketing Team" },
-    { id: 3, name: "CTO GROUP" }
-  ];
-  
-  const parents = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" },
-    { id: 3, name: "Robert Johnson" }
-  ];
 
   const { mutate: createGroupMutation } = useCreateGroup();
+  const {data,isLoading,isError} = getGroupsLevelWise();
 
   const handleGroupSubmit = () => {
     if (!groupName.trim()) return; // Prevent empty submissions
-  
-    console.log("Creating new group:", { name: groupName });
   
     createGroupMutation(groupName, { // Pass only the `groupName` string
       onSuccess: () => {
@@ -92,15 +87,57 @@ const DashboardLayout = ({ children }: LayoutProps) => {
     });
   };
   
+  useEffect(() => {
+    if (selectedGroup && data?.Data) {
+      const selectedGroupData = data.Data.find(
+        (group) => group.id.toString() === selectedGroup
+      );
+      
+      if (selectedGroupData) {
+        setFilteredMembers(selectedGroupData.members);
+      }
+    } else {
+      setFilteredMembers([]);
+    }
+  }, [selectedGroup, data]);
+
   
-  
-  const handleUserSubmit = () => {
-    console.log("Creating new user:", { selectedGroup, selectedParent });
-    // Add your API call to create a user here
-    setSelectedGroup("");
-    setSelectedParent("");
-    setIsUserModalOpen(false);
+  const handleUserSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (selectedGroup) {
+      // Call the mutation with selectedGroup and selectedParent
+      generateInvite(
+        { GroupId: selectedGroup, inviterId: selectedParent || '' },
+        {
+          onSuccess: (data) => {
+            // Set the invite link returned from the mutation
+            setInviteLink(data.inviteLink); // Adjust based on your API response
+
+            // Reset all states after 12 hours
+            setTimeout(() => {
+              setSelectedGroup(null);
+              setSelectedParent(null);
+              setFilteredMembers([]);
+              setInviteLink(null);
+            }, 12 * 60 * 10 * 1000); // 12 hours in milliseconds
+          },
+          onError: (error) => {
+            console.error('Error generating invite:', error);
+          },
+        }
+      );
+    }
   };
+
+
+  const handleCopyToClipboard = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      alert('Link copied to clipboard!'); // Replace with a toast or notification
+    }
+  };
+
 
   // Show loading or nothing while checking authentication
   if (auth?.isLoading) {
@@ -185,70 +222,95 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       
       {/* User Creation Modal */}
       <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
-              Create a new user and assign them to a group and parent.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleUserSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="group" className="text-right">
-                  Group
-                </Label>
-                <div className="col-span-3">
-                  <Select
-                    value={selectedGroup}
-                    onValueChange={setSelectedGroup}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.map((group) => (
-                        <SelectItem key={group.id} value={group.id.toString()}>
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New User</DialogTitle>
+          <DialogDescription>
+            Create a new user and assign them to a group and parent.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleUserSubmit}>
+          <div className="grid gap-4 py-4">
+            {/* Group Selection */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="group" className="text-right">
+                Group
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  value={selectedGroup || ''}
+                  onValueChange={setSelectedGroup}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data?.Data?.map((group) => (
+                      <SelectItem key={group.id} value={group.id.toString()}>
+                        {group.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
+
+            {/* Parent Selection (Conditional Rendering) */}
+            {selectedGroup && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="parent" className="text-right">
                   Parent
                 </Label>
                 <div className="col-span-3">
                   <Select
-                    value={selectedParent}
+                    value={selectedParent || ''}
                     onValueChange={setSelectedParent}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a parent (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      {parents.map((parent) => (
-                        <SelectItem key={parent.id} value={parent.id.toString()}>
-                          {parent.name}
+                      {filteredMembers.map((member) => (
+                        <SelectItem key={member.id} value={member.id.toString()}>
+                          {member.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsUserModalOpen(false)}>
-                Cancel
+            )}
+          </div>
+
+          {/* Display Invite Link */}
+          {inviteLink && (
+            <div className="m-4  flex  pl-10 items-center gap-2">
+              <span className="text-sm text-white">{inviteLink}</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleCopyToClipboard}
+              >
+                <CopyIcon className="h-4 w-4" />
               </Button>
-              <Button type="submit">Add User</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsUserModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Generate Link</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
