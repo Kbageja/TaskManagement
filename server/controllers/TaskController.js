@@ -7,15 +7,17 @@ import { sendEmailNotification } from "../utils/transporter.js";
 // import { taskAssignedTemplate } from "../utils/emailTemplate.js";
 export const createTask = async (req, res) => {
     try {
-        const { TaskName, Priority, DeadLine, Status, groupId, Partners, parentId, userId } = req.body;
+        const { TaskName, Priority, DeadLine, Status, groupId, Partners, userId } = req.body;
+        const parentId =  req.user.id;
+        const GroupId = parseInt(groupId);
 
-        if (!TaskName || !Priority || !DeadLine || !Status || !groupId || !parentId || !userId) {
+        if (!TaskName || !Priority || !DeadLine || !Status || !GroupId || !parentId || !userId) {
             return sendMessage({ status: 400, message: "All fields are required" })(req, res);
         }
 
         // Fetch assigned user details
         const assignedUser = await prisma.groupMembers.findFirst({
-            where: { groupId, userId },
+            where: { groupId:GroupId, userId },
             select: { userId: true, level: true, user: { select: { email: true, name: true } } }
         });
 
@@ -25,7 +27,7 @@ export const createTask = async (req, res) => {
 
         // Fetch parent user details
         const parentUser = await prisma.groupMembers.findFirst({
-            where: { groupId, userId: parentId },
+            where: { groupId:GroupId, userId: parentId },
             select: { userId: true, level: true }
         });
 
@@ -47,7 +49,7 @@ export const createTask = async (req, res) => {
                 Status,
                 userId,
                 parentId,
-                groupId,
+                groupId:GroupId,
                 Partners: {
                     connect: Partners?.map(partnerId => ({ id: partnerId })) || []
                 }
