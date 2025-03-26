@@ -20,6 +20,13 @@ export const deleteGroup = async (groupId: number) => {
     const response = await baseapi.delete(`/user/deleteGroup/${groupId}`);
     return response.data; // Return the resolved data
 };
+export const deleteSubUser = async (groupId: number, parentId: string, subUserId: string) => {
+  const response = await baseapi.delete(`/user/deleteSubUser/${groupId}`, {
+    data: { parentId, subUserId }
+  });
+  return response.data; // Return the resolved data
+};
+
 export const createGroup = async (name: string) => {
   const response = await baseapi.post(`/user/createGroup`, { name }); // Correctly sending name in body
   return response.data;

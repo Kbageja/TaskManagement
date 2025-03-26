@@ -3,8 +3,8 @@ import axios from "axios";
 import Notify from "@/lib/notify";
 import { useRouter } from "next/navigation";
 import { redirect } from "next/navigation";
-import { Tasks } from "@/types/tasks";
-import { createTask } from "./api";
+import { Tasks, UpdatedTask } from "@/types/tasks";
+import { createTask, updateTask } from "./api";
 
 
 
@@ -28,3 +28,25 @@ export const useSubmitTask = () => {
       },
     });
   };
+
+  
+export const useUpdateTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (task: UpdatedTask) => updateTask(task), // Pass only `name`
+    onSuccess: () => {
+      console.log("Success Task Updated")
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["groups"] });
+      }, 500);
+    },
+    onError: (error) => {
+      console.error("onError: Rolling back UI update");
+
+      if (axios.isAxiosError(error)) {
+        Notify("error", error?.response?.data?.message);
+      }
+    },
+  });
+};

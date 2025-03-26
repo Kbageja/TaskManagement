@@ -49,14 +49,17 @@ model SubUser {
 // }
 
 model GroupMembers {
-  id      Int   @id @default(autoincrement())
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  String
-  role    String
-  level   Int
+  id       Int    @id @default(autoincrement())
+  group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId  Int
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  parent   User? @relation("User_ParentGroup", fields: [parentId], references: [id], onDelete: Cascade) // Make parent optional
+  parentId String?  // Keep it optional
+  role     String
+  level    Int
 }
+
 
 model Tasks {
   id        Int       @id @default(autoincrement())
@@ -91,10 +94,9 @@ model User {
   ownedGroups  Group[]      @relation("GroupOwner")
   subUsers     SubUser[]    @relation("User_SubUsers")
   parentUsers  SubUser[]    @relation("User_Parent")
-  
+  groupParents GroupMembers[] @relation("User_ParentGroup") 
   // Reverse relation for invites sent by the user
   invitesSent  Invite[]     @relation("Inviter")
-  
   // Reverse relation for invites received by the user
   invitesReceived Invite[]  @relation("Invitee")
 }

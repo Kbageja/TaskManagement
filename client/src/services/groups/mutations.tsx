@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AcceptInvite, checkInvite, createGroup, deleteGroup, GenerateInvite, getGroup } from "./api";
+import { AcceptInvite, checkInvite, createGroup, deleteGroup, deleteSubUser, GenerateInvite, getGroup } from "./api";
 import axios from "axios";
 import Notify from "@/lib/notify";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,27 @@ export const useDeleteGroup = () => {
       },
     });
   };
-
+export const useDeleteSubUser = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+      mutationFn: ({ groupId, parentId, subUserId }: { groupId: number; parentId: string; subUserId: string }) => 
+        deleteSubUser(groupId, parentId, subUserId),
+        
+      onSuccess: (_, variables) => {
+        // Invalidate queries to refetch the data
+        queryClient.invalidateQueries({ queryKey: ["groups"] });
+      },
+      
+      onError: (error) => {
+        console.error("Error deleting sub-user:", error);
+        
+        if (axios.isAxiosError(error)) {
+          Notify("error", error?.response?.data?.message || "Failed to delete user");
+        }
+      },
+    });
+  };
 export const useCreateGroup = () => {
     const queryClient = useQueryClient();
   

@@ -157,8 +157,7 @@ export const deleteTask = async (req, res) => {
 };
 export const updateTask = async (req, res) => {
     try {
-        const { taskId } = req.params;
-        const { TaskName, Priority, DeadLine, Status } = req.body;
+        const { id:taskId,TaskName, Priority, DeadLine, Status } = req.body;
         const userId = req.user.id;
 
         // Fetch task details

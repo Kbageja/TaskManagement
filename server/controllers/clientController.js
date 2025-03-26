@@ -33,6 +33,7 @@ export const createGroup = async (req, res) => {
             data: {
                 groupId: group.id, // The newly created group's ID
                 userId,            // The user who created the group
+                parentId:userId,
                 role: "creator",    // Role is creator
                 level: 1,           // Assign level 1 to creator
             },
@@ -214,6 +215,7 @@ export const createSubUser = async (req, res) => {
             data: {
                 groupId,
                 userId,
+                parentId,
                 role,  // Set the role for the user within the group
                 level: userLevel,  // Assign level dynamically
             },
@@ -238,6 +240,9 @@ export const deleteSubUser = async (req, res) => {
         const { groupId} = Number(req.params);
         const {parentId,subUserId} = req.body;
         const userId = req.user.id; // Assuming you have user ID from authentication
+
+        console.log(groupId);
+        console.log(parentId," ",subUserId);
 
 
         const member = await prisma.groupMembers.findFirst({
@@ -267,12 +272,12 @@ export const deleteSubUser = async (req, res) => {
 
         // Delete the sub-user entry
         await prisma.subUser.delete({
-            where: { id: subUser.id },
+            where: { id: subUser.id,groupId,parentId },
         });
 
         // Remove the sub-user from the group members table
         await prisma.groupMembers.deleteMany({
-            where: { groupId, userId: subUserId },
+            where: { groupId,parentId, userId: subUserId },
         });
 
         return res.status(200).json({ success: true, message: "Sub-user deleted successfully" });
