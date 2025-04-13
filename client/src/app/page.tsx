@@ -135,7 +135,7 @@ const Home = () => {
         {/* Sign Up Link */}
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Dont have an account?{" "}
             <Link href="/Signup">
               <Button variant="link" className="px-1 text-black">Sign up</Button>
             </Link>

@@ -69,6 +69,54 @@ export const createTask = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+export const getUserAllTasks = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { startDate, endDate, status, priority } = req.query; // Optional filters
+        console.log(userId,"userid")
+        console.log(req.query,"TaskQuery");
+
+        let filters = {
+            userId: userId,
+        };
+
+        // Apply Date Filter (if provided)
+        if (startDate && endDate) {
+            filters.CreatedAt = {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+            };
+        }
+
+        // Apply Status Filter (if provided)
+        if (status) {
+            filters.Status = status;
+        }
+
+        // Apply Priority Filter (if provided)
+        if (priority) {
+            filters.Priority = priority;
+        }
+
+        console.log(filters,"Filters")
+
+        // Fetch tasks based on filters
+        const tasks = await prisma.tasks.findMany({
+            where: filters,
+        });
+
+        console.log(tasks,"Tasks");
+
+        return sendData({
+            status: 200,
+            message: "Tasks fetched successfully",
+            Data: tasks,
+        })(req, res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+};
 export const getUserTasks = async (req, res) => {
     try {
         const {groupId } = req.params; // Assuming userId and groupId are passed in the request parameters
@@ -97,6 +145,7 @@ export const getUserTasks = async (req, res) => {
             // If DeadLine is the same, sort by Priority
             return priorityOrder[b.Priority] - priorityOrder[a.Priority];
         });
+
 
         return sendData({
             status: 200,
@@ -298,26 +347,52 @@ export const getTaskAnalytics = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-
 // Get productivity trends (group-wise & collective)
 export const getProductivityTrends = async (req, res) => {
     try {
-        const { userId } = req.params;
+        // Debug all request information
+        console.log("Full request received:", {
+            params: req.params,
+        });
+        
+        // The issue is likely here - you're using req.params but the userId is in req.query
+        const paramsUserId = req.params.userId;
+
+        
+        // Use the userId from query params instead of route params
+        const userId =  paramsUserId;
+        
+        console.log("Final userId being used:", userId);
+        
+        if (!userId) {
+            console.log("No userId provided in request");
+            return res.status(400).json({ message: "userId is required" });
+        }
 
         // Fetch tasks completed by the user
+        console.log("Querying database for tasks with userId:", userId);
         const tasks = await prisma.tasks.findMany({
             where: { userId: userId, Status: "Completed" },
         });
-
+        
+        console.log(`Found ${tasks.length} completed tasks for user`);
+        
         if (!tasks.length) {
-            return res.status(404).json({ message: "No completed tasks found" });
+            console.log("No completed tasks found for user:", userId);
+            return res.status(200).json({ message: "No completed tasks found" });
         }
 
         let collectiveTrends = {};
         let groupWiseTrends = {};
 
         tasks.forEach(task => {
-            const month = new Date(task.UpdatedAt).getMonth() + 1; // Fix: Adjust month indexing
+            console.log("Processing task:", {
+                id: task.id,
+                updatedAt: task.UpdatedAt,
+                groupId: task.groupId
+            });
+            
+            const month = new Date(task.UpdatedAt).getMonth() + 1;
             const groupId = task.groupId;
 
             // Update collective trends
@@ -328,14 +403,15 @@ export const getProductivityTrends = async (req, res) => {
             groupWiseTrends[groupId][month] = (groupWiseTrends[groupId][month] || 0) + 1;
         });
 
-        return res.status(200).json({ collectiveTrends, groupWiseTrends });
+        const response = { collectiveTrends, groupWiseTrends };
+        console.log("Final response data:", response);
+        
+        return res.status(200).json(response);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        console.error("Error in getProductivityTrends:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-
 // Get peak working hours (group-wise & collective)
 export const getPeakHours = async (req, res) => {
     try {

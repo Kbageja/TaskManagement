@@ -42,18 +42,16 @@ export interface Task {
   }
 
   export interface GroupLevelWise {
-    id: number;
-    name: string;
-    ownerId: string;
-    createdAt: string;
-    members: MembersLevel[];
-    userLevel:number;
+    groupId: number;
+    groupName: string;
+    users: MembersLevel[];
   }
 
   export interface MembersLevel {
-    id: number;
+    id: string;
     name: string;
     level:number;
+    email:string;
     // Add other member properties as needed
   }
   

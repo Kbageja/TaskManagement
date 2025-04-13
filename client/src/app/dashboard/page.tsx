@@ -8,14 +8,14 @@ import {
   Plus,
   Minus,
   Save,
-  Trash,
   Trash2,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import UserComponent from "@/components/custom/UserGroup";
-import { getGroups } from "@/services/groups/queries";
+import { useGroups } from "@/services/groups/queries";
 import { useDeleteGroup } from "@/services/groups/mutations";
+import { useTasks } from "@/services/tasks/queries";
 
 // Dummy data type definitions
 interface Task {
@@ -52,39 +52,43 @@ interface ParentUser {
   user: User;
 }
 
-interface Group {
-  id: number;
-  name: string;
-  ownerId: string;
-  createdAt: string;
-  members: Member[];
-  tasks: Task[];
-}
+// interface Group {
+//   id: number;
+//   name: string;
+//   ownerId: string;
+//   createdAt: string;
+//   members: Member[];
+//   tasks: Task[];
+// }
 
-interface Member {
-  id: number;
-  groupId: number;
-  userId: string;
-  role: string;
-  level: number;
-  user: User;
-}
+// interface Member {
+//   id: number;
+//   groupId: number;
+//   userId: string;
+//   role: string;
+//   level: number;
+//   user: User;
+// }
 
-interface DummyDataType {
-  message: string;
-  Data: Group[];
-}
+
 
 const Dashboard = () => {
-  const { data: dummyData, isLoading, isError, error } = getGroups();
+  const { data: dummyData, isLoading, isError, error } = useGroups();
   console.log(dummyData,"dashboard")
-
+  
+  const { data: tasks } = useTasks({
+    startDate: "2025-02-09",
+    endDate: "2025-02-11",
+    status: "InProgress",
+    priority: "High",
+  });
+  
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(
     {}
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [openGroups, setOpenGroups] = useState<number[]>([]);
+
   const [openUsers, setOpenUsers] = useState<string[]>([]);
 
   useEffect(() => {
@@ -139,6 +143,8 @@ const Dashboard = () => {
   if (!dummyData) {
     return <div>No data available.</div>; // Handle the case where dummyData is undefined
   }
+
+  console.log(tasks,"useTasks")
 
 
 

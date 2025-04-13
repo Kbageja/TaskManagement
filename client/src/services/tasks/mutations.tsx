@@ -1,8 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Notify from "@/lib/notify";
-import { useRouter } from "next/navigation";
-import { redirect } from "next/navigation";
 import { Tasks, UpdatedTask } from "@/types/tasks";
 import { createTask, updateTask } from "./api";
 

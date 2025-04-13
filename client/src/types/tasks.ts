@@ -15,6 +15,16 @@ export interface UpdatedTask{
     groupId:number;
     userId:string;
     parentId:string;
-    createdAt:Date;
-    updatedAt:Date;
+    CreatedAt:Date;
+    UpdatedAt:Date;
 }
+
+  export  interface TaskUserData {
+      message: string;
+      Data: UpdatedTask[];
+    }
+    export interface TrendsData {
+        collectiveTrends: Record<string, number>;
+        groupWiseTrends: Record<string, Record<string, number>>;
+      }
+      

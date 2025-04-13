@@ -14,8 +14,8 @@ const InvitePage = async ({ params }: PageProps) => {
   return (
     <div className="flex flex-col text-black items-center justify-center min-h-screen bg-gradient-to-br from-white to-blue-100">
       <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <h1 className="text-2xl text-black font-bold mb-4">You're Invited!</h1>
-        <p className=" mb-6">
+        <h1 className="text-2xl text-black font-bold mb-4">You are Invited!</h1>
+        <p className="mb-6">
           Join our platform and start collaborating with your team
         </p>
         <AcceptInviteButton token={token} />

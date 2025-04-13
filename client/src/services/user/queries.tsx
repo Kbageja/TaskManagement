@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUser, logoutUser } from "./api";
+import { getUser } from "./api";
 
 
-export function getAuthentication() {
+export function useAuthentication() {
     return useQuery({
       queryKey: ["isAuthenticated"],
       queryFn: () => getUser(),

@@ -4,7 +4,7 @@ import { DummyDataType, GroupLevelData } from "@/types/group";
 
 
 
-export const getGroups = () => {
+export const useGroups = () => {
   return useQuery<DummyDataType, Error>({
     queryKey: ['groups'],
     queryFn: getGroup,
@@ -13,7 +13,7 @@ export const getGroups = () => {
   });
 };
 
-export const getGroupsLevelWise = () => {
+export const useGroupsLevelWise = () => {
   return useQuery<GroupLevelData, Error>({
     queryKey: ['groupsLevelWise'],
     queryFn: getGroupLevel,

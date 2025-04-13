@@ -9,7 +9,7 @@ import { AuthContext } from "../context/authcontext";
 
 const VerifyEmail = () => {
   const [countdown, setCountdown] = useState(200); // 5 minutes countdown
-  const { mutate, isPending } = useVerifyEmail();
+  const { mutate } = useVerifyEmail();
     const router = useRouter();
     const auth = useContext(AuthContext);
     

@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AcceptInvite, checkInvite, createGroup, deleteGroup, deleteSubUser, GenerateInvite, getGroup } from "./api";
+import { AcceptInvite, createGroup, deleteGroup, deleteSubUser, GenerateInvite } from "./api";
 import axios from "axios";
 import Notify from "@/lib/notify";
 import { useRouter } from "next/navigation";
-import { DummyDataType, Group } from "@/types/group";
-import { redirect } from "next/navigation";
+import { DummyDataType } from "@/types/group";
+
 
 
 
@@ -45,7 +45,7 @@ export const useDeleteSubUser = () => {
       mutationFn: ({ groupId, parentId, subUserId }: { groupId: number; parentId: string; subUserId: string }) => 
         deleteSubUser(groupId, parentId, subUserId),
         
-      onSuccess: (_, variables) => {
+      onSuccess: () => {
         // Invalidate queries to refetch the data
         queryClient.invalidateQueries({ queryKey: ["groups"] });
       },

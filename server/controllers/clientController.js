@@ -439,77 +439,209 @@ export const rejectInvite = async (req, res) => {
 };
 export const getGroupLevelWise = async (req, res) => {
     try {
-        const userId = req.user.id;
-
-        // Fetch all groups where the user is the owner or a member
-        const groups = await prisma.group.findMany({
-            where: {
-                OR: [
-                    { ownerId: userId },
-                    { members: { some: { userId: userId } } },
-                ],
-            },
-            include: {
-                members: {
-                    include: {
-                        user: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
-
-        // Process each group to filter members
-        const filteredGroups = groups.map((group) => {
-            // Find the req.user's level in this group
-            const userMember = group.members.find((member) => member.userId === userId);
-            const userLevel = userMember ? userMember.level : null;
-
-            // If the user is not a member of this group, skip filtering
-            if (userLevel === null) {
-                return {
-                    id: group.id,
-                    name: group.name,
-                    ownerId: group.ownerId,
-                    createdAt: group.createdAt,
-                    members: [], // No members to show
-                };
+      const userId = req.user.id;
+      
+      // Helper function to create a recursive include pattern for Prisma
+      const createRecursiveInclude = (depth = 100) => {
+        if (depth <= 0) return true;
+        
+        return {
+          include: {
+            user: {
+              include: {
+                tasks: true,
+                parentUsers: createRecursiveInclude(depth - 1)
+              }
             }
-
-            // Filter members based on their level and exclude the req.user
-            const filteredMembers = group.members
-                .filter((member) => {
-                    // Exclude the req.user
-                    // Ensure the member's level is greater than or equal to the user's level in this group
-                    return member.level >= userLevel;
-                })
-                .map((member) => ({
-                    id: member.user.id,
-                    name: member.user.name,
-                    level: member.level,
-                }));
-
-            return {
-                id: group.id,
-                name: group.name,
-                ownerId: group.ownerId,
-                createdAt: group.createdAt,
-                members: filteredMembers,
-                userLevel:userLevel,
-            };
-        });
-
-        return sendData({
-            status: 200,
-            message: "Filtered groups fetched successfully",
-            Data: filteredGroups, // Return the filtered groups
-        })(req, res);
+          }
+        };
+      };
+      
+      const groups = await prisma.group.findMany({
+        where: {
+          OR: [
+            { ownerId: userId },
+            { members: { some: { userId: userId } } },
+          ],
+        },
+        include: {
+          members: {
+            include: {
+              user: {
+                include: {
+                  tasks: true,
+                  parentUsers: createRecursiveInclude(3) // Recursive include with depth limit
+                }
+              }
+            }
+          },
+          tasks: true,
+        },
+      });
+      
+      const filterUserData = (user, groupId) => {
+        if (!user) return null;
+        
+        // Filter and recursively process parentUsers
+        const filteredParentUsers = user.parentUsers
+          ? user.parentUsers
+              .filter(parent => parent.groupId === groupId)
+              .map(parent => ({
+                ...parent,
+                user: filterUserData(parent.user, groupId)
+              }))
+          : [];
+        
+        return {
+          ...user,
+          parentUsers: filteredParentUsers
+        };
+      };
+      
+      // Filter groups using the recursive function
+      const filteredGroups = groups.map((group) => ({
+        ...group,
+        members: group.members.map((member) => ({
+          ...member,
+          user: filterUserData(member.user, group.id),
+        })),
+      }));
+      
+      // For each group, find the current user and extract hierarchy
+      const userHierarchiesByGroup = {};
+      
+      filteredGroups.forEach(group => {
+        // Find the current user in the group members
+        const currentUserMember = group.members.find(member => member.userId === userId);
+        
+        if (currentUserMember) {
+          // Create root user info
+          const rootUser = {
+            id: currentUserMember.user.id,
+            name: currentUserMember.user.name,
+            email: currentUserMember.user.email,
+            level: currentUserMember.level || 1
+          };
+          
+          // Create a flattened list of all users
+          const allUsers = [rootUser];
+          
+          // Function to recursively extract all users and add them to the flat list
+          const flattenUserHierarchy = (parentUser, parentId, level) => {
+            if (!parentUser || !parentUser.parentUsers) return;
+            
+            parentUser.parentUsers.forEach(childRelation => {
+              if (!childRelation.user) return;
+              
+              const childUser = {
+                id: childRelation.user.id,
+                name: childRelation.user.name,
+                email: childRelation.user.email,
+                parentId: parentId,
+                level: childRelation.level || level + 1
+              };
+              
+              allUsers.push(childUser);
+              
+              // Recursively process this user's children
+              flattenUserHierarchy(childRelation.user, childUser.id, childUser.level);
+            });
+          };
+          
+          // Start the recursive flattening from the root user
+          flattenUserHierarchy(currentUserMember.user, rootUser.id, rootUser.level);
+          
+          userHierarchiesByGroup[group.id] = {
+            groupId: group.id,
+            groupName: group.name,
+            users: allUsers
+          };
+        }
+      });
+      
+      return sendData({
+        status: 200,
+        message: "User hierarchies fetched successfully",
+        Data: userHierarchiesByGroup,
+      })(req, res);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
     }
-};
+  };
+// export const getGroupLevelWise = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+
+//         // Fetch all groups where the user is the owner or a member
+//         const groups = await prisma.group.findMany({
+//             where: {
+//                 OR: [
+//                     { ownerId: userId },
+//                     { members: { some: { userId: userId } } },
+//                 ],
+//             },
+//             include: {
+//                 members: {
+//                     include: {
+//                         user: {
+//                             select: {
+//                                 id: true,
+//                                 name: true,
+//                             },
+//                         },
+//                     },
+//                 },
+//             },
+//         });
+
+//         // Process each group to filter members
+//         const filteredGroups = groups.map((group) => {
+//             // Find the req.user's level in this group
+//             const userMember = group.members.find((member) => member.userId === userId);
+//             const userLevel = userMember ? userMember.level : null;
+
+//             // If the user is not a member of this group, skip filtering
+//             if (userLevel === null) {
+//                 return {
+//                     id: group.id,
+//                     name: group.name,
+//                     ownerId: group.ownerId,
+//                     createdAt: group.createdAt,
+//                     members: [], // No members to show
+//                 };
+//             }
+
+//             // Filter members based on their level and exclude the req.user
+//             const filteredMembers = group.members
+//                 .filter((member) => {
+//                     // Exclude the req.user
+//                     // Ensure the member's level is greater than or equal to the user's level in this group
+//                     return member.level >= userLevel;
+//                 })
+//                 .map((member) => ({
+//                     id: member.user.id,
+//                     name: member.user.name,
+//                     level: member.level,
+//                 }));
+
+//             return {
+//                 id: group.id,
+//                 name: group.name,
+//                 ownerId: group.ownerId,
+//                 createdAt: group.createdAt,
+//                 members: filteredMembers,
+//                 userLevel:userLevel,
+//             };
+//         });
+
+//         return sendData({
+//             status: 200,
+//             message: "Filtered groups fetched successfully",
+//             Data: filteredGroups, // Return the filtered groups
+//         })(req, res);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: "Server error" });
+//     }
+// };

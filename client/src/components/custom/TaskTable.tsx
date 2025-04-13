@@ -91,8 +91,8 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
                 groupId: task.groupId,
                 userId: task.userId,
                 parentId: task.parentId,
-                createdAt: new Date(task.CreatedAt),
-                updatedAt: new Date()
+                CreatedAt: new Date(task.CreatedAt),
+                UpdatedAt: new Date()
             };
 
             console.log('Prepared Update Task:', updatedTask);
