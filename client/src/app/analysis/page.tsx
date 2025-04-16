@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useContext } from "react";
 import TaskTable from "@/components/custom/TaskTable";
-import { useTasks } from "@/services/tasks/queries";
+import { useAnalysis, useTasks } from "@/services/tasks/queries";
 import { UpdatedTask } from "@/types/tasks";
 import TrendsChart from "@/components/custom/ProductivityTrend";
 import PeakHoursChart from "@/components/custom/PeakHrsAnalysis";
@@ -16,6 +16,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGroupsLevelWise } from "@/services/groups/queries";
+import { Search } from "lucide-react";
+import { useLogout } from "@/services/user/mutations";
+import { AuthContext } from "../context/authcontext";
+import { useRouter } from "next/navigation";
 
 // Original Task interface
 interface Task {
@@ -49,6 +53,7 @@ export function convertToTask(updatedTask: UpdatedTask): Task {
 
 const ProfilePage: React.FC = () => {
   // Filter state
+
   const [filters, setFilters] = useState({
     status: "",
     priority: "",
@@ -57,14 +62,40 @@ const ProfilePage: React.FC = () => {
   });
   const [groupName, setGroupName] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedParent2, setSelectedParent2] = useState<string | null>(null);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [filteredMembers, setFilteredMembers] = useState<MembersLevel[]>([]);
+  const auth = useContext(AuthContext);
+  const router = useRouter();
+
 
   // Predefined options for Status and Priority
   const statusOptions = ["Pending", "InProgress", "Completed", "Blocked"];
 
   const priorityOptions = ["Low", "High"];
 
+  const isAuthenticated = auth?.data?.user?.id;
+    //("Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
+  
+    useEffect(() => {
+      // If auth is not loading and the user is not authenticated, redirect to home
+      if (!auth?.isLoading && !isAuthenticated) {
+        //("User not authenticated, redirecting to home");
+        router.push("/");
+      }
+    }, [isAuthenticated, auth?.isLoading, router]);
+  
+    const handleLogout = () => {
+      logout(undefined, {
+        onSuccess: () => {
+          // Make sure to call the context logout to clean up storage
+          auth?.logout();
+          router.push("/");
+        },
+      });
+    };
+
+    const { mutate: logout, isPending } = useLogout(); // Use `mutate` from `useMutation`
   // Fetch tasks with filters
   const { data: tasks } = useTasks({
     status: filters.status,
@@ -75,6 +106,8 @@ const ProfilePage: React.FC = () => {
 
   const { data } = useGroupsLevelWise();
   console.log(data, "levelWise");
+
+  const { data:Analysis, isLoading, error } = useAnalysis(selectedParent ? { userId:selectedParent } : {});
 
   useEffect(() => {
     if (selectedGroup && data?.Data) {
@@ -115,6 +148,30 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
+
+<header className="bg-blue-50 ">
+          <div className="flex justify-end gap-6 items-center px-8 py-4">
+            {/* Search Bar */}
+           
+
+            {/* Navigation Items */}
+            <div className="flex items-center space-x-6">
+              <a href="/dashboard" className="text-gray-600 hover:text-gray-900">
+                Dashboard
+              </a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">
+                Help
+              </a>
+              <button
+                className="px-4 py-2.5 text-sm font-medium border border-black-1px text-white bg-black hover:bg-white hover:text-black rounded-full"
+                onClick={handleLogout}
+                disabled={isPending} // Disable button while logging out
+              >
+                {isPending ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          </div>
+        </header>
       <div className="bg-blue-50 pt-10 px-10 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-3">
           <div >
@@ -138,9 +195,8 @@ const ProfilePage: React.FC = () => {
           </div>
           
           <div >
-            <Select value={selectedParent || ""} onValueChange={setSelectedParent} >
+            <Select value={selectedParent2 || ""} onValueChange={setSelectedParent2} >
             <SelectTrigger className="w-96 text-black bg-white border-white" disabled={!selectedGroup}>
-
                 <SelectValue placeholder="Select a parent (optional)" />
               </SelectTrigger>
               <SelectContent>
@@ -155,7 +211,7 @@ const ProfilePage: React.FC = () => {
           
           <button 
             className="px-4 py-1.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-            onClick={() => console.log(selectedParent)}
+            onClick={() => setSelectedParent(selectedParent2)}
           >
             Analyze
           </button>
@@ -185,22 +241,26 @@ const ProfilePage: React.FC = () => {
                   <h3 className="text-sm font-semibold text-gray-600 mb-2">
                     Task Completion Trend Month Wise
                   </h3>
-                  <TaskProgressCircle />
+                  <TaskProgressCircle 
+  totalTasks2={Analysis?.collectiveStats?.totalTasks || 0} 
+  completedTasks2={Analysis?.collectiveStats?.completedTasks || 0} 
+/>
                 </div>
                 <div className="bg-white h-72 p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
                   <h3 className="text-sm font-semibold text-gray-600 mb-2">
                     Peak Hours of Completing Tasks
                   </h3>
-                  <DelayedTasks />
+                  <DelayedTasks onTimeTasks2={Analysis?.collectiveStats?.onTimeTasks || 0} 
+                  completedTasks2={Analysis?.collectiveStats?.completedTasks || 0} avgCompletionTime2 ={Analysis?.collectiveStats?.avgCompletionTime || 0}   />
                 </div>
               </div>
   
               {/* Existing Solved Problems Section */}
               <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <h2 className="text-xl font-bold mb-4">Solved Problems</h2>
+                <h2 className="text-xl font-bold mb-4">Bar Analysis</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <TrendsChart userId={selectedParent || undefined} />
-                  <PeakHoursChart />
+                  <PeakHoursChart userId={selectedParent || undefined} />
                 </div>
               </div>
   

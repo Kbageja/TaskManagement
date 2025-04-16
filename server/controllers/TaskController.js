@@ -341,7 +341,7 @@ export const getTaskAnalytics = async (req, res) => {
         collectiveStats.avgCompletionTime /= Object.keys(groupWiseStats).length || 1;
         collectiveStats.avgCompletionTime /= (1000 * 60 * 60); // Convert to hours
 
-        return res.status(200).json({ collectiveStats, groupWiseStats });
+        return res.status(200).json({ collectiveStats });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
@@ -423,7 +423,7 @@ export const getPeakHours = async (req, res) => {
         });
 
         if (!tasks.length) {
-            return res.status(404).json({ message: "No completed tasks found" });
+            return res.status(200).json({ message: "No completed tasks found" });
         }
 
         let collectivePeakHours = {};

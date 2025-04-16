@@ -1,5 +1,5 @@
 import { baseapi } from "@/Api"; // Import the base API instance
-import { Tasks, TaskUserData, TrendsData, UpdatedTask } from "@/types/tasks";
+import { AnalysisData, PeaksData, Tasks, TaskUserData, TrendsData, UpdatedTask } from "@/types/tasks";
 
 export const createTask = async (task: Tasks) => {
     const response = await baseapi.post(`/tasks/createTasks`, task); // Sending the entire task object in the body
@@ -28,7 +28,7 @@ export const getUserTrends = async (queryParams: { userId?: string }): Promise<T
   
     // If no userId is provided, throw or handle accordingly
     if (!userId) {
-      console.error("No userId provided to getUserTrends");
+      console.log("No userId provided to getUserTrends");
       return {
         collectiveTrends: {},
         groupWiseTrends: {},
@@ -55,5 +55,62 @@ export const getUserTrends = async (queryParams: { userId?: string }): Promise<T
   
     return response.data;
   };
+export const getPeakHrs = async (queryParams: { userId?: string }): Promise<PeaksData> => {
+    const { userId } = queryParams;
+  
+    // If no userId is provided, throw or handle accordingly
+    if (!userId) {
+      console.log("No userId provided to getUserTrends");
+      return {
+        collectivePeakHours: {},
+        groupWisePeakHours: {},
+      };
+    }
+  
+    const url = `/tasks/getPeakHrs/${userId}`;
+  
+    // Log the request
+    console.log("Making request to:", url);
+  
+    const response = await baseapi.get(url);
+  
+    // Log the response
+    console.log("Full response:", response);
+  
+    if (typeof response.data === 'string') {
+      console.error("Received string response instead of TrendsData object:", response.data);
+      return {
+        collectivePeakHours: {},
+        groupWisePeakHours: {},
+      };
+    }
+  
+    return response.data;
+  };  
+export const getAnalysis = async (queryParams: { userId?: string }): Promise<AnalysisData> => {
+    const { userId } = queryParams;
+  
+    // If no userId is provided, throw or handle accordingly
+    if (!userId) {
+      console.log("No userId provided to getUserTrends");
+      return {
+        collectiveStats: {},
+      };
+    }
+    const url = `/tasks/getUserAnalysis/${userId}`;
+    // Log the request
+    console.log("Making request to:", url);
+    const response = await baseapi.get(url);
+    // Log the response
+    console.log("Full response:", response);
+    if (typeof response.data === 'string') {
+      console.error("Received string response instead of TrendsData object:", response.data);
+      return {
+        collectiveStats: {},
+      };
+    }
+    return response.data;
+  };  
+
   
 

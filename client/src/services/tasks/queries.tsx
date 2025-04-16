@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserAllTasks, getUserTrends } from "./api";
-import { TaskUserData, TrendsData } from "@/types/tasks";
+import { getAnalysis, getPeakHrs, getUserAllTasks, getUserTrends } from "./api";
+import { AnalysisData, PeaksData, TaskUserData, TrendsData } from "@/types/tasks";
 
 export const useTasks = (queryParams?: {
   startDate?: string;
@@ -30,5 +30,33 @@ export const useTrends = (queryParams?: { userId?: string }) => {
   });
   
   console.log('useQuery result:', result.status, result.data, result.error);
+  return result;
+};
+
+export const usePeakHrs = (queryParams?: { userId?: string }) => {
+  console.log('useTrends called with:', queryParams);
+
+  const result = useQuery<PeaksData, Error>({
+    queryKey: ['PeakHrs', queryParams || {}],
+    queryFn: () => {
+      return getPeakHrs(queryParams || {});
+    },
+    staleTime: 10*60*1000,
+    gcTime: 10*60*1000,
+  });
+  return result;
+};
+
+export const useAnalysis = (queryParams?: { userId?: string }) => {
+  console.log('useTrends called with:', queryParams);
+
+  const result = useQuery<AnalysisData, Error>({
+    queryKey: ['Analysis', queryParams || {}],
+    queryFn: () => {
+      return getAnalysis(queryParams || {});
+    },
+    staleTime: 10*60*1000,
+    gcTime: 10*60*1000,
+  });
   return result;
 };
