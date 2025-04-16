@@ -95,14 +95,18 @@ const ProfilePage: React.FC = () => {
       });
     };
 
-    const { mutate: logout, isPending } = useLogout(); // Use `mutate` from `useMutation`
+  const { mutate: logout, isPending } = useLogout(); // Use `mutate` from `useMutation`
   // Fetch tasks with filters
   const { data: tasks } = useTasks({
     status: filters.status,
     priority: filters.priority,
     startDate: filters.startDate,
     endDate: filters.endDate,
+    userId: selectedParent ?? undefined,
   });
+
+  console.log(tasks)
+  
 
   const { data } = useGroupsLevelWise();
   console.log(data, "levelWise");

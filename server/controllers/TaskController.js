@@ -71,7 +71,10 @@ export const createTask = async (req, res) => {
 };
 export const getUserAllTasks = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const { userId } = req.params;
+        if(userId==undefined){
+            return res.status(404).message("User Not Selected");
+        }
         const { startDate, endDate, status, priority } = req.query; // Optional filters
         console.log(userId,"userid")
         console.log(req.query,"TaskQuery");

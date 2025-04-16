@@ -16,8 +16,10 @@ export const getUserAllTasks = async (queryParams: {
     endDate?: string;
     status?: string;
     priority?: string;
+    userId?: string 
 }): Promise<TaskUserData>  => {
-    const response = await baseapi.get(`/tasks/getUserAllTasks`, {
+    const { userId } = queryParams;
+    const response = await baseapi.get(`/tasks/getUserAllTasks/${userId}`, {
         params: queryParams, // Sends as req.query in backend
     });
     return response.data;

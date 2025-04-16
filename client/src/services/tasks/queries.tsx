@@ -7,6 +7,7 @@ export const useTasks = (queryParams?: {
   endDate?: string;
   status?: string;
   priority?: string;
+  userId?:string;
 }) => {
   return useQuery<TaskUserData, Error>({
     queryKey: ['tasks', queryParams || {}], // Ensures refetching when filters change
