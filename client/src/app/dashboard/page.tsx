@@ -306,7 +306,7 @@ const Dashboard = () => {
                             groupId={group.id}
                           />
                         ))}
-                      <div className="flex flex-wrap justify-end gap-2 mt-4">
+                      {/* <div className="flex flex-wrap justify-end gap-2 mt-4">
                         <Button
                           variant="outline"
                           size="lg"
@@ -335,7 +335,7 @@ const Dashboard = () => {
                         >
                           <Save size={16} className="mr-1" /> Save Changes
                         </Button>
-                      </div>
+                      </div> */}
                     </CardContent>
                   )}
                 </Card>

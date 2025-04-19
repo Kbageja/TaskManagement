@@ -1,18 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../../src/globals.css";
+import "../../src/globals.css"; // You can still keep the global styles
 import QueryProvider from "./providers/QueryProvider";
-import {AuthProvider} from "./context/authcontext"; // ✅ Import AuthProvider
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { AuthProvider } from "./context/authcontext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,11 +15,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <head>
+        {/* Add the Ubuntu font link here */}
+        <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet"/>
+      </head>
+      <body className="antialiased" style={{ fontFamily: 'Titillium+Web,sanserif' }}>
         <QueryProvider>
-          <AuthProvider> {/* ✅ Wrap with AuthProvider */}
+          <AuthProvider>
             {children}
           </AuthProvider>
         </QueryProvider>

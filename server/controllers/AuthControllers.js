@@ -5,7 +5,6 @@ import bcrypt from "bcrypt"
 
 dotenv.config();
 export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-
 export const signup = async (req, res) => {
     try {
         const { email, password, name } = req.body;
@@ -79,7 +78,6 @@ export const verifyEmail = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
-
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;

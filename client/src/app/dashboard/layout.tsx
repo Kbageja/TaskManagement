@@ -43,6 +43,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Tasks } from "@/types/tasks";
 import { useSubmitTask } from "@/services/tasks/mutations";
+import { Toaster } from "@/components/ui/toaster";
 
 // Define types for the layout props
 type LayoutProps = {
@@ -642,6 +643,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
           </div>
         </header>
         <main className="p-8">{children}</main>
+        <Toaster />
       </div>
     </div>
   );

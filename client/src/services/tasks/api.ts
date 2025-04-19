@@ -27,7 +27,6 @@ export const getUserAllTasks = async (queryParams: {
 
 export const getUserTrends = async (queryParams: { userId?: string }): Promise<TrendsData> => {
     const { userId } = queryParams;
-  
     // If no userId is provided, throw or handle accordingly
     if (!userId) {
       console.log("No userId provided to getUserTrends");

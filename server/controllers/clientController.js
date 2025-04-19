@@ -569,6 +569,53 @@ export const getGroupLevelWise = async (req, res) => {
       res.status(500).json({ error: "Server error" });
     }
   };
+
+  export const getUserProfile = async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      // Fetch user with selected fields
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          name: true,
+          email: true,
+          groups: {
+            select: {
+              group: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
+            }
+          }
+        }
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Extract group names from the nested structure
+      const groups = user.groups.map(g => ({
+        id: g.group.id,
+        name: g.group.name
+      }));
+  
+      return res.status(200).json({
+        name: user.name,
+        email: user.email,
+        groups
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
+
+
 // export const getGroupLevelWise = async (req, res) => {
 //     try {
 //         const userId = req.user.id;

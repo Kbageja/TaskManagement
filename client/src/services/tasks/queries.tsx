@@ -14,6 +14,8 @@ export const useTasks = (queryParams?: {
     queryFn: () => getUserAllTasks(queryParams || {}), // Pass empty object if no filters
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 10 * 60 * 1000,
+    refetchInterval: 30*1000*60, // Poll every 30 seconds
+    refetchIntervalInBackground: false, // Only poll when tab is in focus
   });
 };
 
@@ -61,3 +63,4 @@ export const useAnalysis = (queryParams?: { userId?: string }) => {
   });
   return result;
 };
+

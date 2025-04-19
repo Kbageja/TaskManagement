@@ -4,6 +4,7 @@ import axios from "axios";
 import Notify from "@/lib/notify";
 import { useRouter } from "next/navigation";
 import { DummyDataType } from "@/types/group";
+import { toast } from "@/hooks/use-toast"
 
 
 
@@ -28,6 +29,11 @@ export const useDeleteGroup = () => {
         setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
         }, 500);
+
+        toast({
+          title: "Success",
+          description: "Group deleted successfully",
+      });
       },
       onError: (error) => {
         console.error("onError: Rolling back UI update");
@@ -35,6 +41,11 @@ export const useDeleteGroup = () => {
         if (axios.isAxiosError(error)) {
           Notify("error", error?.response?.data?.message);
         }
+        toast({
+          title: "Error",
+          description: "Failed to delete group",
+          variant: "destructive",
+      });
       },
     });
   };
@@ -48,6 +59,10 @@ export const useDeleteSubUser = () => {
       onSuccess: () => {
         // Invalidate queries to refetch the data
         queryClient.invalidateQueries({ queryKey: ["groups"] });
+        toast({
+          title: "Success",
+          description: "User deleted successfully",
+      });
       },
       
       onError: (error) => {
@@ -56,6 +71,11 @@ export const useDeleteSubUser = () => {
         if (axios.isAxiosError(error)) {
           Notify("error", error?.response?.data?.message || "Failed to delete user");
         }
+        toast({
+          title: "Error",
+          description: "Failed to delete user",
+          variant: "destructive",
+      });
       },
     });
   };
@@ -68,6 +88,10 @@ export const useCreateGroup = () => {
         setTimeout(() => {
           queryClient.invalidateQueries({ queryKey: ["groups"] });
         }, 500);
+        toast({
+          title: "Success",
+          description: "Group created successfully",
+      });
       },
       onError: (error) => {
         console.error("onError: Rolling back UI update");
@@ -75,6 +99,11 @@ export const useCreateGroup = () => {
         if (axios.isAxiosError(error)) {
           Notify("error", error?.response?.data?.message);
         }
+        toast({
+          title: "Error",
+          description: "Failed to create group",
+          variant: "destructive",
+      });
       },
     });
   };

@@ -1,10 +1,11 @@
 import express from 'express';
-import { acceptInvite, createGroup, createSubUser, deleteGroup, deleteSubUser, generateInviteLink, getAllGroups, getGroupLevelWise, rejectInvite } from '../controllers/clientController.js';
+import { acceptInvite, createGroup, createSubUser, deleteGroup, deleteSubUser, generateInviteLink, getAllGroups, getGroupLevelWise, getUserProfile, rejectInvite } from '../controllers/clientController.js';
 import { isAuthenticated } from '../middleware/authenticated.js';
  const router = express.Router();
 
 router.get("/getAllGroups",isAuthenticated,getAllGroups);
 router.get("/getGroupLevel",isAuthenticated,getGroupLevelWise);
+router.get("/getUserProfile/:userId",isAuthenticated,getUserProfile);
 router.get("/checkInvite/:token", isAuthenticated, rejectInvite); // Route to accept an invite  
 router.post("/createGroup",isAuthenticated,createGroup);
 router.post("/createSubUser",createSubUser);
