@@ -1,5 +1,5 @@
-import { baseapi } from "@/Api"; // Import the base API instance
-import { AnalysisData, PeaksData, Tasks, TaskUserData, TrendsData, UpdatedTask } from "@/types/tasks";
+import { baseapi } from "../../Api"; // Import the base API instance
+import { AnalysisData, PeaksData, Tasks, TaskUserData, TrendsData, UpdatedTask } from "../../types/tasks";
 
 export const createTask = async (task: Tasks) => {
     const response = await baseapi.post(`/tasks/createTasks`, task); // Sending the entire task object in the body

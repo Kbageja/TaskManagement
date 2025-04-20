@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUser, getUserProfile } from "./api";
-import { UserProfile } from "@/types/user";
+import { UserProfile } from "../../types/user";
 
 
 export function useAuthentication() {

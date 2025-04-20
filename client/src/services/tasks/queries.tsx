@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAnalysis, getPeakHrs, getUserAllTasks, getUserTrends } from "./api";
-import { AnalysisData, PeaksData, TaskUserData, TrendsData } from "@/types/tasks";
+import { AnalysisData, PeaksData, TaskUserData, TrendsData } from "../../types/tasks";
 
 export const useTasks = (queryParams?: {
   startDate?: string;

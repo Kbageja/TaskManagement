@@ -5,7 +5,7 @@ import {
   RadialBarChart,
   Label,
 } from "recharts";
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { ChartConfig, ChartContainer } from "../ui/chart";
 
 // Define a type for the polar viewBox which includes cx and cy properties
 interface PolarViewBox {

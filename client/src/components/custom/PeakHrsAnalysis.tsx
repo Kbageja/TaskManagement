@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import ChartJS from 'chart.js/auto';
 import dynamic from 'next/dynamic';
-import { usePeakHrs } from '@/services/tasks/queries';
+import { usePeakHrs } from '../../services/tasks/queries';
 
 // Lazy load the Bar component with SSR disabled
 const Bar = dynamic(

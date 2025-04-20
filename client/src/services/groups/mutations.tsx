@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AcceptInvite, createGroup, deleteGroup, deleteSubUser, GenerateInvite } from "./api";
 import axios from "axios";
-import Notify from "@/lib/notify";
+import Notify from "../../lib/notify";
 import { useRouter } from "next/navigation";
-import { DummyDataType } from "@/types/group";
-import { toast } from "@/hooks/use-toast"
+import { DummyDataType } from "../../types/group";
+import { toast } from "../../hooks/use-toast"
 
 
 

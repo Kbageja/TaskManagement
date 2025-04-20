@@ -1,5 +1,5 @@
-import { baseapi } from "@/Api"; // Import the base API instance
-import { DummyDataType, GroupLevelData } from "@/types/group";
+import { baseapi } from "../../Api"; // Import the base API instance
+import { DummyDataType, GroupLevelData } from "../../types/group";
 
 export const getGroup = async (): Promise<DummyDataType> => {
   const timestamp = new Date().getTime();

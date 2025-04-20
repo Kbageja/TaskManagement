@@ -8,13 +8,13 @@ import {
     TableBody,
     TableCell,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Loader2, Pencil, Save } from "lucide-react"; 
-import { useUpdateTask } from '@/services/tasks/mutations';
-import { UpdatedTask } from '@/types/tasks';
-import { useToast } from '@/hooks/use-toast';
+import { useUpdateTask } from '../../services/tasks/mutations';
+import { UpdatedTask } from '../../types/tasks';
+import { useToast } from '../../hooks/use-toast';
 
 
 interface Task {

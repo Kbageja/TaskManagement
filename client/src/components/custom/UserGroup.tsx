@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 import TaskTable from "./TaskTable";
-import { useDeleteSubUser } from "@/services/groups/mutations";
+import { useDeleteSubUser } from "../../services/groups/mutations";
 
 interface UserComponentProps {
   user: User;

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { checkInvite, getGroup, getGroupLevel } from "./api";
-import { DummyDataType, GroupLevelData } from "@/types/group";
+import { DummyDataType, GroupLevelData } from "../../types/group";
 
 
 

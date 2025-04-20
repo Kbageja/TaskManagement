@@ -1,8 +1,8 @@
-  import { loginData, registerData, verifyEmailData } from "@/types/user";
+  import { loginData, registerData, verifyEmailData } from "../../types/user";
   import { login, logoutUser, register, verifyEmail } from "./api";
   import { useMutation, useQueryClient } from "@tanstack/react-query";
   import axios from "axios";
-  import Notify from "@/lib/notify";
+  import Notify from "../../lib/notify";
 
   export function useRegister() {
       return useMutation({

@@ -1,6 +1,6 @@
  // Importing types from Axios
-import { baseapi } from "@/Api"; // Import the base API instance
-import { loginData, registerData, UserProfile, verifyEmailData } from "@/types/user";
+import { baseapi } from "../../Api"; // Import the base API instance
+import { loginData, registerData, UserProfile, verifyEmailData } from "../../types/user";
 
 export const getUser = () => {
     return baseapi.get("/auth/isLoggedIn");
