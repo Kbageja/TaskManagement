@@ -14,7 +14,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import UserComponent from "@/components/custom/UserGroup";
 import { useGroups } from "@/services/groups/queries";
 import { useDeleteGroup } from "@/services/groups/mutations";
-import { useTasks } from "@/services/tasks/queries";
+
 
 // Dummy data type definitions
 interface Task {
@@ -74,13 +74,7 @@ interface ParentUser {
 const Dashboard = () => {
   const { data: dummyData, isLoading, isError, error } = useGroups();
   //(dummyData,"dashboard")
-  
-  const { data: tasks } = useTasks({
-    startDate: "2025-02-09",
-    endDate: "2025-02-11",
-    status: "InProgress",
-    priority: "High",
-  });
+
   
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(
     {}
