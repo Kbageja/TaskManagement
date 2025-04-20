@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
-import { useVerifyEmail } from "@/services/user/mutations";
+import { useVerifyEmail } from "../../services/user/mutations";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";

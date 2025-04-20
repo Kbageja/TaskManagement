@@ -1,8 +1,8 @@
 'use client';
 
-import { AuthContext } from '@/app/context/authcontext';
-import { useAcceptInvite } from '@/services/groups/mutations';
-import { useCheckInvite } from '@/services/groups/queries';
+import { AuthContext } from '../../context/authcontext';
+import { useAcceptInvite } from '../../../services/groups/mutations';
+import { useCheckInvite } from '../../../services/groups/queries';
 import { useRouter } from "next/navigation"; 
 
 import React, { useContext, useEffect } from 'react';

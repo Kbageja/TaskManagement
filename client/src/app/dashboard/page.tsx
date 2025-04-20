@@ -10,10 +10,10 @@ import {
   // Save,
   Trash2,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import UserComponent from "@/components/custom/UserGroup";
-import { useGroups } from "@/services/groups/queries";
-import { useDeleteGroup } from "@/services/groups/mutations";
+import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
+import UserComponent from "../../components/custom/UserGroup";
+import { useGroups } from "../../services/groups/queries";
+import { useDeleteGroup } from "../../services/groups/mutations";
 
 
 // Dummy data type definitions

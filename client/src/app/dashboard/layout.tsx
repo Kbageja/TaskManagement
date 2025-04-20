@@ -16,35 +16,35 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../../components/ui/select";
 import { useRouter } from "next/navigation";
-import { useLogout } from "@/services/user/mutations";
+import { useLogout } from "../../services/user/mutations";
 import { AuthContext } from "../context/authcontext";
-import { useCreateGroup, useGenerateInvite } from "@/services/groups/mutations";
-import { useGroupsLevelWise } from "@/services/groups/queries";
-import { MembersLevel } from "@/types/group";
-import { Calendar } from "@/components/ui/calendar";
+import { useCreateGroup, useGenerateInvite } from "../../services/groups/mutations";
+import { useGroupsLevelWise } from "../../services/groups/queries";
+import { MembersLevel } from "../../types/group";
+import { Calendar } from "../../components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "../../components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Tasks } from "@/types/tasks";
-import { useSubmitTask } from "@/services/tasks/mutations";
-import { Toaster } from "@/components/ui/toaster";
-import { toast } from "@/hooks/use-toast"
+import { Tasks } from "../../types/tasks";
+import { useSubmitTask } from "../../services/tasks/mutations";
+import { Toaster } from "../../components/ui/toaster";
+import { toast } from "../../hooks/use-toast"
 
 // Define types for the layout props
 type LayoutProps = {

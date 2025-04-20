@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useLogin } from "@/services/user/mutations";
+import { useLogin } from "../services/user/mutations";
 import { Loader2, Mail, Lock } from "lucide-react";
 import { 
   Card, 
@@ -14,10 +14,10 @@ import {
   CardDescription, 
   CardContent, 
   CardFooter 
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { Label } from "../components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 
 import { AuthContext } from "./context/authcontext";

@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../../components/ui/select";
 import { useGroupsLevelWise } from "../../services/groups/queries";
 import { useLogout } from "../../services/user/mutations";
 import { AuthContext } from "../context/authcontext";

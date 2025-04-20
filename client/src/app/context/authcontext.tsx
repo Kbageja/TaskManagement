@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, FC, ReactNode, useMemo, useState, useEffect } from "react";
-import { getUser } from "@/services/user/api"; // Direct API call
+import { getUser } from "../..//services/user/api"; // Direct API call
 
 // Define a proper User type based on the actual data structure
 interface IdentityData {
