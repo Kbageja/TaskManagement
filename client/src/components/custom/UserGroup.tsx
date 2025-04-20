@@ -55,12 +55,7 @@ const UserComponent = ({ user, role, groupId, parentId, level = 1 }: UserCompone
   
   const toggleExpanded = () => {
     // Log component key and data-parent-id when expanding/collapsing
-    console.log("Toggle expanded for:", {
-      componentKey: componentKey,
-      dataParentId: dataParentId,
-      userName: user.name,
-      isExpanding: !expanded
-    });
+   
     
     setExpanded(!expanded);
   };

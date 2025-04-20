@@ -62,6 +62,8 @@ const DashboardLayout = ({ children }: LayoutProps) => {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDeadline, setTaskDeadline] = useState<Date | undefined>(undefined);
   const [taskPriority, setTaskPriority] = useState<string | null>(null);
+  const [userId, setUserId] = useState("");
+
 
   // Form states
   const [groupName, setGroupName] = useState("");
@@ -74,17 +76,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
   // Check if user data exists and has an ID
   const isAuthenticated = auth?.data?.user?.id;
-  console.log(auth?.data?.user,"authData");
-  console.log(auth?.isLoading)
-  console.log(router);
-  console.log(isAuthenticated)
   //("Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
 
   useEffect(() => {
     // If auth is not loading and the user is not authenticated, redirect to home
     if (!auth?.isLoading && !isAuthenticated) {
-      console.log(isAuthenticated,"useEffect")
-      console.log(auth?.isLoading,"useEffect")
+
       //("User not authenticated, redirecting to home");
       router.push("/");
     }
@@ -102,7 +99,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
   const { mutate: createGroupMutation } = useCreateGroup();
   const { data } = useGroupsLevelWise();
-  console.log(data, "levelWise");
+  //(data, "levelWise");
 
   const handleGroupSubmit = () => {
     if (!groupName.trim()) return; // Prevent empty submissions
@@ -120,7 +117,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
     if (selectedGroup && data?.Data) {
       const selectedGroupNumber = Number(selectedGroup);
       const selectedGroupData = data.Data[selectedGroupNumber];
-      console.log(selectedGroupData);
+      //(selectedGroupData);
 
       if (selectedGroupData) {
         setFilteredMembers(selectedGroupData.users);
@@ -130,6 +127,10 @@ const DashboardLayout = ({ children }: LayoutProps) => {
     }
   }, [selectedGroup, data]);
 
+  useEffect(() => {
+    const id = localStorage.getItem("userId");
+    if (id) setUserId(id);
+  }, []);
   const handleUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -495,7 +496,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                         {filteredMembers
                           .filter((member) => {
                             // Get the current user's ID from localStorage
-                            const userId = localStorage.getItem("userId") || "";
+                            
 
                             // Convert selectedGroup to a number
                             const selectedGroupNumber = Number(selectedGroup);

@@ -73,7 +73,7 @@ interface ParentUser {
 
 const Dashboard = () => {
   const { data: dummyData, isLoading, isError, error } = useGroups();
-  console.log(dummyData,"dashboard")
+  //(dummyData,"dashboard")
   
   const { data: tasks } = useTasks({
     startDate: "2025-02-09",
@@ -131,7 +131,7 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    console.log("loading");
+    //("loading");
     return <div>Loading...</div>;
   }
 
@@ -143,7 +143,7 @@ const Dashboard = () => {
     return <div>No data available.</div>; // Handle the case where dummyData is undefined
   }
 
-  console.log(tasks,"useTasks")
+  //(tasks,"useTasks")
 
 
 
