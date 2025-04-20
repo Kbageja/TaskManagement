@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect, useContext } from "react";
 import TaskTable from "@/components/custom/TaskTable";
 import { useAnalysis, useTasks } from "@/services/tasks/queries";
-import { UpdatedTask } from "@/types/tasks";
 import TrendsChart from "@/components/custom/ProductivityTrend";
 import PeakHoursChart from "@/components/custom/PeakHrsAnalysis";
 import TaskProgressCircle from "@/components/custom/TaskCompleted";
@@ -20,36 +19,13 @@ import { useLogout } from "@/services/user/mutations";
 import { AuthContext } from "../context/authcontext";
 import { useRouter } from "next/navigation";
 import { useUserProfile } from "@/services/user/queries";
+import { convertToTask } from "@/utils/taskUtils";
 
 // Original Task interface
-interface Task {
-  id: number;
-  userId: string;
-  parentId: string;
-  groupId: number;
-  TaskName: string;
-  Priority: string;
-  DeadLine: string;
-  Status: string;
-  UpdatedAt: string;
-  CreatedAt: string;
-}
+
 
 // Conversion function
-export function convertToTask(updatedTask: UpdatedTask): Task {
-  return {
-    id: updatedTask.id,
-    TaskName: updatedTask.TaskName,
-    Priority: updatedTask.Priority,
-    DeadLine: String(updatedTask.DeadLine),
-    Status: updatedTask.Status,
-    groupId: updatedTask.groupId,
-    userId: updatedTask.userId,
-    parentId: updatedTask.parentId,
-    CreatedAt: String(updatedTask.CreatedAt),
-    UpdatedAt: String(updatedTask.UpdatedAt),
-  };
-}
+
 
 const ProfilePage: React.FC = () => {
   // Filter state
@@ -59,7 +35,7 @@ const ProfilePage: React.FC = () => {
     startDate: "",
     endDate: "",
   });
-  const [groupName, setGroupName] = useState("");
+
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedParent2, setSelectedParent2] = useState<string | null>(null);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
@@ -117,8 +93,6 @@ const ProfilePage: React.FC = () => {
 
   const {
     data: Analysis,
-    isLoading,
-    error,
   } = useAnalysis(selectedParent ? { userId: selectedParent } : {});
 
   useEffect(() => {

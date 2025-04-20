@@ -30,20 +30,20 @@ ChartJS.register(
   Legend
 );
 
-interface GroupWisePeakHours {
-  [groupId: string]: {
-    [hour: string]: number;
-  };
-}
+// interface GroupWisePeakHours {
+//   [groupId: string]: {
+//     [hour: string]: number;
+//   };
+// }
 
-interface CollectivePeakHours {
-  [hour: string]: number;
-}
+// interface CollectivePeakHours {
+//   [hour: string]: number;
+// }
 
-interface PeakHoursData {
-  collectivePeakHours?: CollectivePeakHours;
-  groupWisePeakHours?: GroupWisePeakHours;
-}
+// interface PeakHoursData {
+//   collectivePeakHours?: CollectivePeakHours;
+//   groupWisePeakHours?: GroupWisePeakHours;
+// }
 
 const PeakHoursChart: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const [activeView, setActiveView] = useState<'collective' | 'groupwise'>('collective');

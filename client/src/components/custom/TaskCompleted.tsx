@@ -1,5 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
-import { ChartConfig } from "@/components/ui/chart";
+import React, {  Suspense, lazy } from "react";
 
 // Lazy load the chart components to improve performance
 const LazyChart = lazy(() => import("./TaskCompletedContent"));

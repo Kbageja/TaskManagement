@@ -15,8 +15,9 @@ interface PolarViewBox {
   outerRadius: number;
   startAngle: number;
   endAngle: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
+
 
 // Props interface for the component
 interface DelayedTasksChartContentProps {
@@ -32,7 +33,6 @@ interface DelayedTasksChartContentProps {
 const DelayedTasksChartContent: React.FC<DelayedTasksChartContentProps> = ({ 
   taskData, 
   percentage, 
-  delayedTasks 
 }) => {
   const [showAvgTime, setShowAvgTime] = useState(false);
 

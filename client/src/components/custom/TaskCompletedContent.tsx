@@ -15,8 +15,9 @@ interface PolarViewBox {
   outerRadius: number;
   startAngle: number;
   endAngle: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
+
 
 // Props for the chart content component
 interface TaskProgressChartContentProps {
@@ -27,7 +28,6 @@ interface TaskProgressChartContentProps {
 }
 
 const TaskProgressChartContent: React.FC<TaskProgressChartContentProps> = ({
-  totalTasks,
   completedTasks,
   remainingTasks,
   percentage

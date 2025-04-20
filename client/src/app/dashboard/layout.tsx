@@ -6,7 +6,7 @@ import {
   PenSquare,
   LineChart,
   CircleHelp,
-  Search,
+  // Search,
   CopyIcon,
 } from "lucide-react";
 import {
@@ -44,6 +44,7 @@ import { format } from "date-fns";
 import { Tasks } from "@/types/tasks";
 import { useSubmitTask } from "@/services/tasks/mutations";
 import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/hooks/use-toast"
 
 // Define types for the layout props
 type LayoutProps = {
@@ -73,11 +74,17 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
   // Check if user data exists and has an ID
   const isAuthenticated = auth?.data?.user?.id;
+  console.log(auth?.data?.user,"authData");
+  console.log(auth?.isLoading)
+  console.log(router);
+  console.log(isAuthenticated)
   //("Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
 
   useEffect(() => {
     // If auth is not loading and the user is not authenticated, redirect to home
     if (!auth?.isLoading && !isAuthenticated) {
+      console.log(isAuthenticated,"useEffect")
+      console.log(auth?.isLoading,"useEffect")
       //("User not authenticated, redirecting to home");
       router.push("/");
     }
@@ -180,7 +187,10 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       submitTask(taskData, {
         onSuccess: () => {
           // Handle success
-          console.log("success submit task");
+          toast({
+            title: "Success",
+            description: "Task Created successfully",
+        });
           setIsTaskModalOpen(false);
           resetForm();
         },
@@ -414,13 +424,13 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Task</DialogTitle>
+            <DialogTitle className="text-white">Create New Task</DialogTitle>
             <DialogDescription>
               Create a new task and assign it to a user with details.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleTaskSubmit}>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 text-white">
               {/* Task Title */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="title" className="text-right">
@@ -520,7 +530,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               )}
 
               {/* Deadline */}
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid grid-cols-4 items-center gap-4 text-white">
                 <Label htmlFor="deadline" className="text-right">
                   Deadline
                 </Label>
@@ -613,7 +623,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
         <header className="bg-white">
           <div className="flex justify-end gap-6 items-center px-8 py-4">
             {/* Search Bar */}
-            <div className="relative flex justify-end w-96">
+            {/* <div className="relative flex justify-end w-96">
               <input
                 type="search"
                 placeholder="Search"
@@ -622,11 +632,11 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Search size={20} />
               </div>
-            </div>
+            </div> */}
 
             {/* Navigation Items */}
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-gray-600 hover:text-gray-900">
+              <a href="/analysis" className="text-gray-600 hover:text-gray-900">
                 Analysis
               </a>
               <a href="#" className="text-gray-600 hover:text-gray-900">

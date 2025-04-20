@@ -19,11 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";
 
-
-// Form Schema
 const formSchema = z.object({
   name: z.string().min(1, { message: "Required" }),
   email: z.string().min(1, { message: "Required" }).email("Invalid email"), 
@@ -36,12 +34,10 @@ const Signup = () => {
   const router = useRouter();
   const auth = useContext(AuthContext);
   
-  // Check if user is already authenticated and not in loading state
   const isAuthenticated = auth?.data?.user?.id;
   const isLoading = auth?.isLoading;
 
   useEffect(() => {
-    // Only redirect if authentication check is complete and user is authenticated
     if (!isLoading && isAuthenticated) {
       router.push("/dashboard");
     }
@@ -58,9 +54,11 @@ const Signup = () => {
     mutate(values, {
       onSuccess: (response) => {
         if (response?.data?.userId) {
-          localStorage.setItem("userId", response.data.userId);
-          localStorage.setItem("userData", JSON.stringify(values));
-          window.location.href = "/verifyemail";
+          if (typeof window !== "undefined") {
+            localStorage.setItem("userId", response.data.userId);
+            localStorage.setItem("userData", JSON.stringify(values));
+          }
+          router.push("/verifyemail");
         }
       }
     });
@@ -79,7 +77,6 @@ const Signup = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Name Input */}
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem>
                   <Label htmlFor="name">Name</Label>
@@ -90,7 +87,6 @@ const Signup = () => {
                 </FormItem>
               )} />
 
-              {/* Email Input */}
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
                   <Label htmlFor="email">Email</Label>
@@ -101,7 +97,6 @@ const Signup = () => {
                 </FormItem>
               )} />
 
-              {/* Password Input */}
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
                   <Label htmlFor="password">Password</Label>
@@ -112,7 +107,6 @@ const Signup = () => {
                 </FormItem>
               )} />
 
-              {/* Sign Up Button */}
               <Button type="submit" className="w-full bg-black hover:bg-black text-white" disabled={isPending}>
                 {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Sign up
@@ -124,8 +118,8 @@ const Signup = () => {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href="/">
-              <Button variant="link" className="px-1 text-black">Log In</Button>
+            <Link href="/" className="px-1 text-black hover:underline">
+              Log In
             </Link>
           </p>
         </CardFooter>

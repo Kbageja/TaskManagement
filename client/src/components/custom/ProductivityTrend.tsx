@@ -30,20 +30,20 @@ ChartJS.register(
   Legend
 );
 
-interface GroupWiseTrends {
-  [groupId: string]: {
-    [month: string]: number;
-  };
-}
+// interface GroupWiseTrends {
+//   [groupId: string]: {
+//     [month: string]: number;
+//   };
+// }
 
-interface CollectiveTrends {
-  [month: string]: number;
-}
+// interface CollectiveTrends {
+//   [month: string]: number;
+// }
 
-interface TrendsData {
-  collectiveTrends?: CollectiveTrends;
-  groupWiseTrends?: GroupWiseTrends;
-}
+// interface TrendsData {
+//   collectiveTrends?: CollectiveTrends;
+//   groupWiseTrends?: GroupWiseTrends;
+// }
 
 const TrendsChart: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const [activeView, setActiveView] = useState<'collective' | 'groupwise'>('collective');
