@@ -2,13 +2,13 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "vercel-build": "npm install --legacy-peer-deps && next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "vercel-build": "npm install --legacy-peer-deps && next build",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@hookform/resolvers": "^4.1.0",
     "@radix-ui/react-accordion": "^1.2.3",
