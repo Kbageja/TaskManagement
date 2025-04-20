@@ -5,6 +5,9 @@
     "cleanUrls": true,
     "rewrites": [],
     "redirects": [],
-    "headers": []
+    "headers": [],
+    "env": {
+      "TS_NODE_PROJECT": "./tsconfig.json"
+    }
   }
   
