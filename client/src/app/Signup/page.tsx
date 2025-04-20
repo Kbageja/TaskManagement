@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRegister } from "@/services/user/mutations";
+import { useRegister } from "../../services/user/mutations";
 import { Loader2 } from "lucide-react";
 import { 
   Card, 
@@ -14,10 +14,10 @@ import {
   CardDescription, 
   CardContent, 
   CardFooter 
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Label } from "../../components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";
@@ -79,7 +79,7 @@ const Signup = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name" className="text-black">Name</Label>
                   <FormControl>
                     <Input id="name" type="text" className="text-black" placeholder="Enter your Name" {...field} disabled={isPending} />
                   </FormControl>
@@ -89,7 +89,7 @@ const Signup = () => {
 
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-black">Email</Label>
                   <FormControl>
                     <Input id="email" type="email" className="text-black" placeholder="Enter your email" {...field} disabled={isPending} />
                   </FormControl>
@@ -99,7 +99,7 @@ const Signup = () => {
 
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-black">Password</Label>
                   <FormControl>
                     <Input id="password" type="password" className="text-black" placeholder="••••••••" {...field} disabled={isPending} />
                   </FormControl>
