@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useMemo, useEffect, useContext } from "react";
-import TaskTable from "@/components/custom/TaskTable";
-import { useAnalysis, useTasks } from "@/services/tasks/queries";
-import TrendsChart from "@/components/custom/ProductivityTrend";
-import PeakHoursChart from "@/components/custom/PeakHrsAnalysis";
-import TaskProgressCircle from "@/components/custom/TaskCompleted";
-import DelayedTasks from "@/components/custom/DelayedTaskAnalysis";
-import { MembersLevel } from "@/types/group";
+import TaskTable from "../../components/custom/TaskTable";
+import { useAnalysis, useTasks } from "../../services/tasks/queries";
+import TrendsChart from "../../components/custom/ProductivityTrend";
+import PeakHoursChart from "../../components/custom/PeakHrsAnalysis";
+import TaskProgressCircle from "../../components/custom/TaskCompleted";
+import DelayedTasks from "../../components/custom/DelayedTaskAnalysis";
+import { MembersLevel } from "../../types/group";
 import {
   Select,
   SelectContent,
@@ -14,12 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGroupsLevelWise } from "@/services/groups/queries";
-import { useLogout } from "@/services/user/mutations";
+import { useGroupsLevelWise } from "../../services/groups/queries";
+import { useLogout } from "../../services/user/mutations";
 import { AuthContext } from "../context/authcontext";
 import { useRouter } from "next/navigation";
-import { useUserProfile } from "@/services/user/queries";
-import { convertToTask } from "@/utils/taskUtils";
+import { useUserProfile } from "../../services/user/queries";
+import { convertToTask } from "../../utils/taskUtils";
 
 // Original Task interface
 

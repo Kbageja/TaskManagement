@@ -18,7 +18,7 @@ import {
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "../../components/ui/form";
 import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";
 
