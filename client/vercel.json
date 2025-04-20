@@ -1,0 +1,10 @@
+{
+    "buildCommand": "npm run vercel-build",
+    "outputDirectory": ".next",
+    "ignoreCommand": "echo 'No ignored files'",
+    "cleanUrls": true,
+    "rewrites": [],
+    "redirects": [],
+    "headers": []
+  }
+  
