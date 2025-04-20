@@ -2,13 +2,13 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-"scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "vercel-build": "npm install --legacy-peer-deps && next build",
-  "start": "next start",
-  "lint": "next lint"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "vercel-build": "npm install --legacy-peer-deps && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@hookform/resolvers": "^4.1.0",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -43,7 +43,8 @@
     "sonner": "^2.0.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -53,7 +54,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
 }
