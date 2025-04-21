@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../../src/globals.css"; // You can still keep the global styles
 import QueryProvider from "./providers/QueryProvider";
 import { AuthProvider } from "./context/authcontext";
+import { Toaster } from "../components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,6 +24,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             {children}
+            <Toaster />
           </AuthProvider>
         </QueryProvider>
       </body>

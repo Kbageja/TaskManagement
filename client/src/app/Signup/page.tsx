@@ -39,7 +39,7 @@ const Signup = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
+     router.push("/dashboard")
     }
   }, [isAuthenticated, isLoading, router]);
   
@@ -56,7 +56,7 @@ const Signup = () => {
         if (response?.data?.userId) {
           if (typeof window !== "undefined") {
             localStorage.setItem("userId", response.data.userId);
-            localStorage.setItem("userData", JSON.stringify(values));
+            localStorage.setItem("authData", JSON.stringify(values));
           }
           router.push("/verifyemail");
         }

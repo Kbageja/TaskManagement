@@ -76,6 +76,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
   // Check if user data exists and has an ID
   const isAuthenticated = auth?.data?.user?.id;
+
   //("Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
 
   useEffect(() => {
@@ -87,15 +88,24 @@ const DashboardLayout = ({ children }: LayoutProps) => {
     }
   }, [isAuthenticated, auth?.isLoading, router]);
 
-  const handleLogout = () => {
-    logout(undefined, {
+ const handleLogout = async () => {
+  try {
+     logout(undefined, {
       onSuccess: () => {
-        // Make sure to call the context logout to clean up storage
+
+        // Clean up local state
         auth?.logout();
-        router.push("/");
+        
+        // Add a short delay before redirecting to ensure all cleanup is complete
+        setTimeout(() => {
+          router.push("/");
+        }, 300);
       },
     });
-  };
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
 
   const { mutate: createGroupMutation } = useCreateGroup();
   const { data } = useGroupsLevelWise();
@@ -289,13 +299,13 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       <Dialog open={isGroupModalOpen} onOpenChange={setIsGroupModalOpen}>
         <DialogContent className="sm:max-w-md  ">
           <DialogHeader>
-            <DialogTitle>Create New Group</DialogTitle>
+            <DialogTitle className="text-white">Create New Group</DialogTitle>
             <DialogDescription>
               Create a new group to organize users and assign tasks.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleGroupSubmit}>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 text-white">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="groupName" className="text-right">
                   Group Name
@@ -314,6 +324,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <Button
                 type="button"
                 variant="outline"
+                className="text-white"
                 onClick={() => setIsGroupModalOpen(false)}
               >
                 Cancel
@@ -328,13 +339,13 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
+            <DialogTitle className="text-white">Add New User</DialogTitle>
             <DialogDescription>
               Create a new user and assign them to a group and parent.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUserSubmit}>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 text-white">
               {/* Group Selection */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="group" className="text-right">
@@ -412,6 +423,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <Button
                 type="button"
                 variant="outline"
+                className="text-white"
                 onClick={() => setIsUserModalOpen(false)}
               >
                 Cancel
@@ -531,11 +543,11 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               )}
 
               {/* Deadline */}
-              <div className="grid grid-cols-4 items-center gap-4 text-white">
+              <div className="grid grid-cols-4 items-center gap-4 ">
                 <Label htmlFor="deadline" className="text-right">
                   Deadline
                 </Label>
-                <div className="col-span-3">
+                <div className="col-span-3 text-[#A3A3A3]">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -546,7 +558,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                         {taskDeadline ? (
                           format(taskDeadline, "PPP")
                         ) : (
-                          <span>Pick a date</span>
+                          <span className="">Pick a date</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -607,6 +619,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <Button
                 type="button"
                 variant="outline"
+                className="text-white"
                 onClick={() => setIsTaskModalOpen(false)}
               >
                 Cancel

@@ -80,12 +80,13 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       // First check if user has auth tokens in storage
       const hasAuthInLocalStorage = localStorage.getItem("authData") !== null || localStorage.getItem("userId") !== null;
       const hasAuthInSessionStorage = sessionStorage.getItem("authData") !== null;
-      
+
       // Only try to get user if we have auth data stored
       if (hasAuthInLocalStorage || hasAuthInSessionStorage) {
         try {
           setIsLoading(true);
           const response = await getUser();
+
           
           // Store the response data directly since it already has the correct structure
           setUserData(response?.data || null);

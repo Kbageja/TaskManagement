@@ -71,7 +71,7 @@ export const verifyEmail = async (req, res) => {
             return res.status(400).json({ error: profileError.message });
         }
 
-        return res.status(200).json({ message: "Email verified and user registered successfully!" });
+        return res.status(200).json({ message: "Email verified and user registered successfully!",data:userData });
 
     } catch (error) {
         console.error(error);
@@ -121,6 +121,11 @@ export const logout = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
 
+        // Clear any authentication cookies that might be set
+        res.clearCookie('sb-auth-token');
+        res.clearCookie('sb-refresh-token');
+        // Add any other cookies that might be related to authentication
+        
         res.status(200).json({ message: "Logout successful" });
     } catch (error) {
         res.status(500).json({ error: "Server error" });

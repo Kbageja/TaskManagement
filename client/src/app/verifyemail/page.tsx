@@ -5,19 +5,18 @@ import { useVerifyEmail } from "../../services/user/mutations";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";
+import { toast } from "../../hooks/use-toast";
 
 const VerifyEmail = () => {
   const [countdown, setCountdown] = useState(200);
   const { mutate } = useVerifyEmail();
   const router = useRouter();
   const auth = useContext(AuthContext);
-  
+
   const isAuthenticated = auth?.data?.user?.id;
   const isLoading = auth?.isLoading;
-
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -26,7 +25,7 @@ const VerifyEmail = () => {
     if (typeof window === "undefined") return;
 
     const userId = localStorage.getItem("userId");
-    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    const userData = JSON.parse(localStorage.getItem("authData") || "{}");
 
     if (!userId || !userData) {
       router.push("/Signup");
@@ -34,14 +33,18 @@ const VerifyEmail = () => {
     }
 
     const checkVerification = () => {
-      mutate({ userId, ...userData }, {
-        onSuccess: (response) => {
-          if (response?.status === 200) {
-            localStorage.removeItem("userData");
-            router.push("/dashboard");
-          }
+      mutate(
+        { userId, ...userData },
+        {
+          onSuccess: (response) => {
+            if (response?.status === 200) {
+              alert("Email Verification and Registration is Complete ,now Proceed to Login")
+              localStorage.removeItem("userData");
+              router.push("/");
+            }
+          },
         }
-      });
+      );
     };
 
     const interval = setInterval(() => {
@@ -51,9 +54,11 @@ const VerifyEmail = () => {
 
     const timeout = setTimeout(() => {
       clearInterval(interval);
-      alert("Email verification timeout. Please check your email and try again.");
+      alert(
+        "Email verification timeout. Please check your email and try again."
+      );
       localStorage.removeItem("userId");
-      localStorage.removeItem("userData");
+      localStorage.removeItem("authData");
       router.push("/Signup");
     }, 200000);
 

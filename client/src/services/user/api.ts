@@ -3,10 +3,15 @@ import { baseapi } from "../../Api"; // Import the base API instance
 import { loginData, registerData, UserProfile, verifyEmailData } from "../../types/user";
 
 export const getUser = () => {
-    return baseapi.get("/auth/isLoggedIn");
+    return baseapi.get("/auth/isLoggedIn", {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   };
 export const logoutUser = () => {
-    return baseapi.get("/auth/logout");
+    return baseapi.post("/auth/logout");
   };
 export const register = (data: registerData) => {
     return baseapi.post("/auth/signup", data);
@@ -22,7 +27,6 @@ export const verifyEmail = (data: verifyEmailData) => {
     const { userId } = queryParams;
   
     if (!userId) {
-      console.log("No userId provided to getUserProfile");
       return {
         name: "",
         email: "",
@@ -31,7 +35,6 @@ export const verifyEmail = (data: verifyEmailData) => {
     }
   
     const url = `/user/getUserProfile/${userId}`;
-    console.log("Making request to:", url);
   
     try {
       const response = await baseapi.get<UserProfile>(url);
