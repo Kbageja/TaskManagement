@@ -17,7 +17,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Password must be at least 8 characters long" });
         }
 
-        const redirectTo = "https://www.google.com/"; // Change this to your actual frontend URL
+        const redirectTo = process.env.FRONTENDURL; // Change this to your actual frontend URL
 
         // Step 1: Register user in Supabase and send confirmation email
         const { data, error } = await supabase.auth.signUp({

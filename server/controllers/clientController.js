@@ -323,7 +323,7 @@ export const generateInviteLink = async (req, res) => {
         });
 
         // Generate the invite link
-        const inviteLink = `http://localhost:3000/invite/${token}`;
+        const inviteLink = `${process.env.FRONTENDURL}/invite/${token}`;
 
         return res.status(201).json({
             success: true,
@@ -570,7 +570,7 @@ export const getGroupLevelWise = async (req, res) => {
     }
   };
 
-  export const getUserProfile = async (req, res) => {
+export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
   
     try {
