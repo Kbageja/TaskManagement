@@ -5,7 +5,6 @@ import { useVerifyEmail } from "../../services/user/mutations";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation"; // Updated import
 import { AuthContext } from "../context/authcontext";
-import { toast } from "../../hooks/use-toast";
 
 const VerifyEmail = () => {
   const [countdown, setCountdown] = useState(200);
