@@ -35,7 +35,7 @@ export const useUpdateTask = () => {
   return useMutation({
     mutationFn: (task: UpdatedTask) => updateTask(task), // Pass only `name`
     onSuccess: () => {
-      console.log("Success Task Updated")
+      //("Success Task Updated")
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
       }, 500);

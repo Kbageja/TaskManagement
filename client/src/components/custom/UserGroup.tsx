@@ -47,7 +47,7 @@ interface ParentUser {
 
 const UserComponent = ({ user, role, groupId, parentId, level = 1 }: UserComponentProps) => {
   const [expanded, setExpanded] = useState(false);
-  console.log(user, "userComponent");
+  //(user, "userComponent");
   
   // Generate component key
   const componentKey = `${parentId ? parentId + '-' : ''}${user.id}`;
@@ -64,7 +64,7 @@ const UserComponent = ({ user, role, groupId, parentId, level = 1 }: UserCompone
 
   // Handle delete user
   const handleDelete = (e: React.MouseEvent) => {
-    console.log(groupId,"handleDelete");
+    //(groupId,"handleDelete");
     e.stopPropagation();
     deleteSubUserMutation({ 
       groupId, 

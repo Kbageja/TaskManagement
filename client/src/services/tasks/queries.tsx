@@ -20,24 +20,24 @@ export const useTasks = (queryParams?: {
 };
 
 export const useTrends = (queryParams?: { userId?: string }) => {
-  console.log('useTrends called with:', queryParams);
+  //('useTrends called with:', queryParams);
 
   const result = useQuery<TrendsData, Error>({
     queryKey: ['trends', queryParams || {}],
     queryFn: () => {
-      console.log('queryFn executing with:', queryParams);
+      //('queryFn executing with:', queryParams);
       return getUserTrends(queryParams || {});
     },
     staleTime: 10*60*1000,
     gcTime: 10*60*1000,
   });
   
-  console.log('useQuery result:', result.status, result.data, result.error);
+  //('useQuery result:', result.status, result.data, result.error);
   return result;
 };
 
 export const usePeakHrs = (queryParams?: { userId?: string }) => {
-  console.log('useTrends called with:', queryParams);
+  //('useTrends called with:', queryParams);
 
   const result = useQuery<PeaksData, Error>({
     queryKey: ['PeakHrs', queryParams || {}],
@@ -51,7 +51,7 @@ export const usePeakHrs = (queryParams?: { userId?: string }) => {
 };
 
 export const useAnalysis = (queryParams?: { userId?: string }) => {
-  console.log('useTrends called with:', queryParams);
+  //('useTrends called with:', queryParams);
 
   const result = useQuery<AnalysisData, Error>({
     queryKey: ['Analysis', queryParams || {}],

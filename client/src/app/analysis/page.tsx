@@ -79,17 +79,17 @@ const ProfilePage: React.FC = () => {
     userId: selectedParent ?? undefined,
   });
 
-  console.log(tasks);
+
 
   const { data } = useGroupsLevelWise();
-  console.log(data, "levelWise");
+
 
   const {
     data: User,
     isLoading: isLoadingUser,
     error: isUserError,
   } = useUserProfile(selectedParent ? { userId: selectedParent } : {});
-  console.log(User, "UserDataAnalysis");
+
 
   const {
     data: Analysis,
@@ -99,7 +99,7 @@ const ProfilePage: React.FC = () => {
     if (selectedGroup && data?.Data) {
       const selectedGroupNumber = Number(selectedGroup);
       const selectedGroupData = data.Data[selectedGroupNumber];
-      console.log(selectedGroupData);
+
 
       if (selectedGroupData) {
         setFilteredMembers(selectedGroupData.users);

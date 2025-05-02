@@ -43,7 +43,7 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
 
     useEffect(() => {
         if (updateTaskMutation.isSuccess) {
-            console.log('Task updated successfully', updateTaskMutation.data);
+           
             toast({
                 title: "Success",
                 description: "Task updated successfully",
@@ -76,10 +76,10 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
     const handleSaveClick = (task: Task) => {
         try {
             console.group('Task Save Process');
-            console.log('Original Task:', task);
+            
             
             const editedTaskData = editedTasks[task.id] || {};
-            console.log('Edited Task Data:', editedTaskData);
+            //('Edited Task Data:', editedTaskData);
 
             const updatedTask = {
                 ...task,
@@ -95,7 +95,7 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
                 UpdatedAt: new Date()
             };
 
-            console.log('Prepared Update Task:', updatedTask);
+            //('Prepared Update Task:', updatedTask);
 
             const requiredFields: (keyof Task)[] = ['TaskName', 'Priority', 'Status', 'DeadLine'];
             const missingFields = requiredFields.filter(field => 
@@ -114,7 +114,7 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
 
             updateTaskMutation.mutate(updatedTask as UpdatedTask);
             
-            console.log('Mutation called');
+            //('Mutation called');
             console.groupEnd();
         } catch (error) {
             console.error('Error in handleSaveClick:', error);

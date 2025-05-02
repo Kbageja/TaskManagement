@@ -16,7 +16,6 @@ const AcceptInviteButton = ({ token }: AcceptInviteButtonProps) => {
     const router = useRouter();
     const auth = useContext(AuthContext);
   const { data, isLoading, isError, refetch } = useCheckInvite(token);
-  console.log(data)
   const { mutate: acceptInvite, isPending } = useAcceptInvite();
 
    const isAuthenticated = auth?.data?.user?.id;

@@ -114,7 +114,7 @@ export const useAcceptInvite = () => {
     return useMutation({
       mutationFn: (InviteToken: string) => AcceptInvite(InviteToken), // Pass only `InviteToken`
       onSuccess: () => {
-        console.log("success accepted Invite");
+        //("success accepted Invite");
         router.push("/dashboard"); // Redirect to Dashboard after success  
       },
       onError: (error) => {

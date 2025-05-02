@@ -22,7 +22,7 @@ export function useAuthentication() {
   // }
 
   export const useUserProfile = (queryParams?: { userId?: string }) => {
-    console.log('useTrends called with:', queryParams);
+    //('useTrends called with:', queryParams);
   
     const result = useQuery<UserProfile, Error>({
       queryKey: ['UserProfile', queryParams || {}],
