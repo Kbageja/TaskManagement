@@ -361,6 +361,10 @@ export const acceptInvite = async (req, res) => {
         // Get parentId from the invite (inviterId)
         const parentId = invite.inviterId;
 
+        if(inviteeId==parentId){
+          return res.status(500).json({ success: false, message: "You can't accept invite under yourself" });
+        }
+
         // Get the parent's level in the group
         const parentMember = await prisma.groupMembers.findFirst({
             where: { groupId: invite.groupId, userId: parentId },

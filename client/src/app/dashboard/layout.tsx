@@ -30,7 +30,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useLogout } from "../../services/user/mutations";
 import { AuthContext } from "../context/authcontext";
-import { useCreateGroup, useGenerateInvite } from "../../services/groups/mutations";
+import {
+  useCreateGroup,
+  useGenerateInvite,
+} from "../../services/groups/mutations";
 import { useGroupsLevelWise } from "../../services/groups/queries";
 import { MembersLevel } from "../../types/group";
 import { Calendar } from "../../components/ui/calendar";
@@ -44,7 +47,7 @@ import { format } from "date-fns";
 import { Tasks } from "../../types/tasks";
 import { useSubmitTask } from "../../services/tasks/mutations";
 import { Toaster } from "../../components/ui/toaster";
-import { toast } from "../../hooks/use-toast"
+import { toast } from "../../hooks/use-toast";
 
 // Define types for the layout props
 type LayoutProps = {
@@ -64,7 +67,6 @@ const DashboardLayout = ({ children }: LayoutProps) => {
   const [taskPriority, setTaskPriority] = useState<string | null>(null);
   const [userId, setUserId] = useState("");
 
-
   // Form states
   const [groupName, setGroupName] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
@@ -82,30 +84,28 @@ const DashboardLayout = ({ children }: LayoutProps) => {
   useEffect(() => {
     // If auth is not loading and the user is not authenticated, redirect to home
     if (!auth?.isLoading && !isAuthenticated) {
-
       //("User not authenticated, redirecting to home");
       router.push("/");
     }
   }, [isAuthenticated, auth?.isLoading, router]);
 
- const handleLogout = async () => {
-  try {
-     logout(undefined, {
-      onSuccess: () => {
+  const handleLogout = async () => {
+    try {
+      logout(undefined, {
+        onSuccess: () => {
+          // Clean up local state
+          auth?.logout();
 
-        // Clean up local state
-        auth?.logout();
-        
-        // Add a short delay before redirecting to ensure all cleanup is complete
-        setTimeout(() => {
-          router.push("/");
-        }, 300);
-      },
-    });
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
+          // Add a short delay before redirecting to ensure all cleanup is complete
+          setTimeout(() => {
+            router.push("/");
+          }, 300);
+        },
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const { mutate: createGroupMutation } = useCreateGroup();
   const { data } = useGroupsLevelWise();
@@ -201,7 +201,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
           toast({
             title: "Success",
             description: "Task Created successfully",
-        });
+          });
           setIsTaskModalOpen(false);
           resetForm();
         },
@@ -287,7 +287,9 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <LineChart size={28} />
             </a>
             <a
-              href="#"
+              href="https://nudgr.vercel.app/#tutorial"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
             >
               <CircleHelp size={28} />
@@ -508,7 +510,6 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                         {filteredMembers
                           .filter((member) => {
                             // Get the current user's ID from localStorage
-                            
 
                             // Convert selectedGroup to a number
                             const selectedGroupNumber = Number(selectedGroup);
@@ -653,7 +654,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               <a href="/analysis" className="text-gray-600 hover:text-gray-900">
                 Analysis
               </a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">
+              <a
+                href="https://nudgr.vercel.app/#tutorial"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-900"
+              >
                 Help
               </a>
               <button

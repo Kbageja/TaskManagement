@@ -28,6 +28,7 @@ export const useDeleteGroup = () => {
         // With Supabase, we might need to wait a bit for the deletion to propagate
         setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
+        queryClient.invalidateQueries({ queryKey: ["groupsLevelWise"] });
         }, 500);
 
         toast({
@@ -87,6 +88,7 @@ export const useCreateGroup = () => {
       onSuccess: () => {
         setTimeout(() => {
           queryClient.invalidateQueries({ queryKey: ["groups"] });
+          queryClient.invalidateQueries({ queryKey: ["groupsLevelWise"] });
         }, 500);
         toast({
           title: "Success",
@@ -116,12 +118,23 @@ export const useAcceptInvite = () => {
         router.push("/dashboard"); // Redirect to Dashboard after success  
       },
       onError: (error) => {
-        console.error('onError: Rolling back UI update');
-  
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify('error', error?.response?.data?.message);
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       },
+      
     });
   }; 
   
