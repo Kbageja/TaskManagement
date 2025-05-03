@@ -38,6 +38,7 @@ export const useUpdateTask = () => {
       //("Success Task Updated")
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
       }, 500);
     },
     onError: (error) => {

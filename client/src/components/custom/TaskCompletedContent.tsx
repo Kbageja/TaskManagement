@@ -105,7 +105,7 @@ const TaskProgressChartContent: React.FC<TaskProgressChartContentProps> = ({
                     >
                       {isHoveringRemaining 
                         ? `${remainingPercentage.toFixed(0)}%` 
-                        : `${percentage}%`}
+                        : `${percentage.toFixed(0)}%`}
                     </tspan>
                     <tspan
                       x={polarViewBox.cx}

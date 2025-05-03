@@ -245,9 +245,16 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       {/* Sidebar */}
       <div className="w-16 bg-blue-800 text-white">
         {/* Logo Section */}
-        <div className="py-4 pr-2 pl-[0.8rem]">
-          <div className="h-10 pr-8 w-10 bg-white rounded-md"></div>
-        </div>
+
+<div className="rounded-4xl ">
+  <div className="h-16 pr-8 w-64  rounded-4xl">
+    <img 
+      src="/Nudgr3.png" 
+      alt="Nudgr Logo" 
+      className="h-full w-auto object-contain rounded-b-md"
+    />
+  </div>
+</div>
 
         {/* Navigation Links */}
         <nav className="mt-20 flex-col justify-center align-center">
@@ -299,7 +306,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
       </div>
 
       <Dialog open={isGroupModalOpen} onOpenChange={setIsGroupModalOpen}>
-        <DialogContent className="sm:max-w-md  ">
+        <DialogContent className="sm:max-w-md bg-black ">
           <DialogHeader>
             <DialogTitle className="text-white">Create New Group</DialogTitle>
             <DialogDescription>
@@ -325,13 +332,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
-                className="text-white"
+                className="text-white bg-zinc-900 hover:bg-white hover:text-black"
                 onClick={() => setIsGroupModalOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit">Create Group</Button>
+              <Button type="submit" className="text-white bg-zinc-900 hover:bg-white hover:text-black" >Create Group</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -339,7 +345,7 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
       {/* User Creation Modal */}
       <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-black">
           <DialogHeader>
             <DialogTitle className="text-white">Add New User</DialogTitle>
             <DialogDescription>
@@ -385,14 +391,17 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                   <div className="col-span-3">
                     <Select
                       value={selectedParent || ""}
+                      
                       onValueChange={setSelectedParent}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a parent (optional)" />
+                        <SelectValue placeholder="Select a parent"  />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent  >
                         {filteredMembers.map((member) => (
                           <SelectItem
+                          
+
                             key={member.id}
                             value={member.id.toString()}
                           >
@@ -412,11 +421,11 @@ const DashboardLayout = ({ children }: LayoutProps) => {
                 <span className="text-sm text-white">{inviteLink}</span>
                 <Button
                   type="button"
-                  variant="outline"
                   size="icon"
+                  className="text-white h-9 w-9 bg-zinc-900 hover:bg-white hover:text-black "
                   onClick={handleCopyToClipboard}
                 >
-                  <CopyIcon className="h-4 w-4" />
+                  <CopyIcon className="h-4 w-4  " />
                 </Button>
               </div>
             )}
@@ -424,20 +433,19 @@ const DashboardLayout = ({ children }: LayoutProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
-                className="text-white"
+                className="text-white bg-zinc-900 hover:bg-white hover:text-black"
                 onClick={() => setIsUserModalOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit">Generate Link</Button>
+              <Button type="submit" className="text-white bg-zinc-900 hover:bg-white hover:text-black">Generate Link</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-black">
           <DialogHeader>
             <DialogTitle className="text-white">Create New Task</DialogTitle>
             <DialogDescription>
@@ -544,37 +552,39 @@ const DashboardLayout = ({ children }: LayoutProps) => {
               )}
 
               {/* Deadline */}
-              <div className="grid grid-cols-4 items-center gap-4 ">
-                <Label htmlFor="deadline" className="text-right">
-                  Deadline
-                </Label>
-                <div className="col-span-3 text-[#A3A3A3]">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {taskDeadline ? (
-                          format(taskDeadline, "PPP")
-                        ) : (
-                          <span className="">Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={taskDeadline}
-                        onSelect={setTaskDeadline}
-                        initialFocus
-                        required
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
+              <div className="grid grid-cols-4 items-center gap-4  ">
+  <Label htmlFor="deadline" className="text-right">
+    Deadline
+  </Label>
+  <div className="col-span-3 text-[#A3A3A3] bg-black">
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-start text-left font-normal bg-black hover:bg-black hover:text-[#A3A3A3]"
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {taskDeadline ? (
+            format(taskDeadline, "PPP")
+          ) : (
+            <span className="">Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 bg-black text-white">
+        <Calendar
+          mode="single"
+          selected={taskDeadline}
+          onSelect={setTaskDeadline}
+          initialFocus
+          required
+          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+          fromDate={new Date()}
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
+</div>
 
               {/* Priority */}
               <div className="grid grid-cols-4 items-center gap-4">
@@ -619,13 +629,12 @@ const DashboardLayout = ({ children }: LayoutProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
-                className="text-white"
+                className="text-white bg-zinc-900 hover:bg-white hover:text-black"
                 onClick={() => setIsTaskModalOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmittingTask}>
+              <Button type="submit" disabled={isSubmittingTask} className=" text-white bg-zinc-900 hover:bg-white hover:text-black">
                 {isSubmittingTask ? "Creating..." : "Create Task"}
               </Button>
             </DialogFooter>

@@ -50,90 +50,110 @@ export const createGroup = async (req, res) => {
     }
 };
 export const getAllGroups = async (req, res) => {
-    try {
-      const userId = req.user.id;
+  try {
+    const userId = req.user.id;
+    
+    // Helper function to create a recursive include pattern for Prisma
+    const createRecursiveInclude = (depth = 100) => {
+      if (depth <= 0) return true;
       
-      // Helper function to create a recursive include pattern for Prisma
-      const createRecursiveInclude = (depth = 100) => {
-        if (depth <= 0) return true;
-        
-        return {
+      return {
+        include: {
+          user: {
+            include: {
+              tasks: true,
+              parentUsers: createRecursiveInclude(depth - 1)
+            }
+          }
+        }
+      };
+    };
+    
+    const groups = await prisma.group.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId: userId } } },
+        ],
+      },
+      include: {
+        members: {
           include: {
             user: {
               include: {
                 tasks: true,
-                parentUsers: createRecursiveInclude(depth - 1)
+                parentUsers: createRecursiveInclude(3) // Recursive include with depth limit
               }
             }
           }
-        };
-      };
-  
-      const groups = await prisma.group.findMany({
-        where: {
-          OR: [
-            { ownerId: userId },
-            { members: { some: { userId: userId } } },
-          ],
         },
-        include: {
-          members: {
-            include: {
-              user: {
-                include: {
-                  tasks: true,
-                  parentUsers: createRecursiveInclude(3) // Recursive include with depth limit
-                }
-              }
-            }
-          },
-          tasks: true,
-        },
-      });
-  
-      // Recursive function to filter user data including nested parentUsers
-      const filterUserData = (user, groupId) => {
-        if (!user) return null;
-        
-        // Filter tasks for the current user
-        const filteredTasks = user.tasks ? user.tasks.filter(task => task.groupId === groupId) : [];
-        
-        // Filter and recursively process parentUsers
-        const filteredParentUsers = user.parentUsers 
-          ? user.parentUsers
-              .filter(parent => parent.groupId === groupId)
-              .map(parent => ({
-                ...parent,
-                user: filterUserData(parent.user, groupId)
-              }))
-          : [];
-        
-        return {
-          ...user,
-          tasks: filteredTasks,
-          parentUsers: filteredParentUsers
-        };
+        tasks: true,
+      },
+    });
+    
+    // Recursive function to filter user data including nested parentUsers
+    const filterUserData = (user, group, currentUserLevel) => {
+      if (!user) return null;
+      
+      // Find the user's level in this group from the group's members
+      const groupMember = group.members.find(m => m.userId === user.id);
+      const memberLevel = groupMember?.level || Infinity;
+      
+      // Users can only see tasks of members with level number >= their own 
+      // (their own level or higher numbers - which means same level or lower in hierarchy)
+      // Example: A level 2 user can see tasks of level 2, 3, 4, etc. but not level 1
+      const filteredTasks = user.tasks 
+        ? (memberLevel >= currentUserLevel 
+            ? user.tasks.filter(task => task.groupId === group.id) 
+            : [])
+        : [];
+      
+      // Filter and recursively process parentUsers
+      const filteredParentUsers = user.parentUsers
+        ? user.parentUsers
+            .filter(parent => parent.groupId === group.id)
+            .map(parent => ({
+              ...parent,
+              user: filterUserData(parent.user, group, currentUserLevel)
+            }))
+        : [];
+      
+      return {
+        ...user,
+        tasks: filteredTasks,
+        parentUsers: filteredParentUsers
       };
-  
-      // Filter groups using the recursive function
-      const filteredGroups = groups.map((group) => ({
+    };
+    
+    // Get the current user's level in each group and apply filtering
+    const filteredGroups = groups.map((group) => {
+      // Find current user's membership in this group to get their level
+      const currentUserMembership = group.members.find(member => member.userId === userId);
+      const currentUserLevel = currentUserMembership?.level || Infinity;
+      
+      // For group owners, they can see all tasks (assuming they have the lowest level, e.g., 1)
+      const isOwner = group.ownerId === userId;
+      const effectiveLevel = isOwner ? 0 : currentUserLevel;
+      
+      return {
         ...group,
         members: group.members.map((member) => ({
           ...member,
-          user: filterUserData(member.user, group.id),
+          user: filterUserData(member.user, group, effectiveLevel),
         })),
-      }));
-  
-      return sendData({
-        status: 200,
-        message: "Groups fetched successfully",
-        Data: filteredGroups,
-      })(req, res);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Server error" });
-    }
-  };
+      };
+    });
+    
+    return sendData({
+      status: 200,
+      message: "Groups fetched successfully",
+      Data: filteredGroups,
+    })(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 export const deleteGroup = async (req, res) => {
     try {
         const groupId = Number(req.params.groupId);
@@ -236,56 +256,100 @@ export const createSubUser = async (req, res) => {
     }
 };
 export const deleteSubUser = async (req, res) => {
-    try {
-        const { groupId} = Number(req.params);
-        const {parentId,subUserId} = req.body;
-        const userId = req.user.id; // Assuming you have user ID from authentication
-
-        console.log(groupId);
-        console.log(parentId," ",subUserId);
-
-
-        const member = await prisma.groupMembers.findFirst({
-            where: { groupId, userId }
-        });
-
-        if (!member) {
-            return res.status(403).json({ success: false, message: "You are not a member of this group" });
-        }
-
-       
-
-        // Check if the sub-user relation exists
-        const subUser = await prisma.subUser.findFirst({
-            where: { groupId, parentId, userId: subUserId },
-        });
-
-        if (!subUser) {
-            return res.status(404).json({ success: false, message: "Sub-user relation not found" });
-        }
-
-
-        if (member.level > subUser.level) {
-            return res.status(403).json({ success: false, message: "You do not have the authority to delete this group" });
-        }
-
-
-        // Delete the sub-user entry
-        await prisma.subUser.delete({
-            where: { id: subUser.id,groupId,parentId },
-        });
-
-        // Remove the sub-user from the group members table
-        await prisma.groupMembers.deleteMany({
-            where: { groupId,parentId, userId: subUserId },
-        });
-
-        return res.status(200).json({ success: true, message: "Sub-user deleted successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Error deleting sub-user", error: error.message });
+  try {
+    const groupId = Number(req.params.groupId);
+    const { parentId, subUserId } = req.body;
+    const userId = req.user.id; // Assuming you have user ID from authentication
+    
+    console.log("Group ID:", groupId);
+    console.log("Parent ID:", parentId, "Sub-User ID:", subUserId);
+    
+    // Check if requester is a member of the group
+    const requesterMember = await prisma.groupMembers.findFirst({
+      where: { groupId, userId }
+    });
+    
+    if (!requesterMember) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "You are not a member of this group" 
+      });
     }
+    
+    // Check if the sub-user relation exists
+    const subUser = await prisma.subUser.findFirst({
+      where: { groupId, parentId, userId: subUserId },
+    });
+    
+    if (!subUser) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Sub-user relation not found" 
+      });
+    }
+    
+    // Check if requester has sufficient authority based on level
+    if (requesterMember.level > subUser.level) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "You do not have the authority to delete this user" 
+      });
+    }
+    
+    // First delete the current subUser record to remove the relationship
+    await prisma.subUser.delete({
+      where: { id: subUser.id }
+    });
+    
+    // Recursively delete all sub-users under this user and their sub-users
+    await deleteSubUserHierarchy(groupId, subUserId);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: "Sub-user and all related sub-users deleted successfully" 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error deleting sub-user", 
+      error: error.message 
+    });
+  }
 };
+
+/**
+ * Recursively deletes a user and all sub-users under it
+ * @param {number} groupId - The ID of the group
+ * @param {string} userId - The ID of the user to delete (along with its sub-users)
+ */
+const deleteSubUserHierarchy = async (groupId, userId) => {
+  // Find all immediate sub-users
+  const subUsers = await prisma.subUser.findMany({
+    where: { groupId, parentId: userId }
+  });
+  
+  // For each sub-user, recursively delete their sub-users first
+  for (const subUser of subUsers) {
+    await deleteSubUserHierarchy(groupId, subUser.userId);
+  }
+  
+  // Delete all sub-user records where this user is the parent
+  await prisma.subUser.deleteMany({
+    where: { groupId, parentId: userId }
+  });
+  
+  // Delete this user's own subUser record (if it exists)
+  await prisma.subUser.deleteMany({
+    where: { groupId, userId }
+  });
+  
+  // Remove the user from the group members table
+  await prisma.groupMembers.deleteMany({
+    where: { groupId, userId }
+  });
+};
+
 export const generateInviteLink = async (req, res) => {
     try {
         const { GroupId ,inviterId} = req.body;
@@ -384,6 +448,7 @@ export const acceptInvite = async (req, res) => {
                 data: {
                     groupId: invite.groupId,
                     userId: inviteeId,
+                    parentId:parentId,
                     role: 'member', // You can adjust the role as needed
                     level: parentLevel + 1, // Assign the level based on the parent's level
                 },
@@ -573,7 +638,6 @@ export const getGroupLevelWise = async (req, res) => {
       res.status(500).json({ error: "Server error" });
     }
   };
-
 export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
   
@@ -617,8 +681,6 @@ export const getUserProfile = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
   };
-  
-
 
 // export const getGroupLevelWise = async (req, res) => {
 //     try {
