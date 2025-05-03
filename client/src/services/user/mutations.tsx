@@ -48,11 +48,21 @@
           //("onMutate");
         },
         onError: (error) => {
+          console.error(error, "error");
+        
+          let errorMessage = "Something went wrong";
+        
+          // Check if it's an Axios error and has a response message
           if (axios.isAxiosError(error)) {
-            console.error("onError", error?.response?.data?.message);
-            Notify("error", error?.response?.data?.message);
+            errorMessage = error?.response?.data?.message || errorMessage;
+            Notify('error', errorMessage);
           }
-
+        
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
         },
         onSuccess: (response) => {
           //("onSuccess");
@@ -99,7 +109,21 @@
 
         },
         onError: (error) => {
-          console.error("Logout failed:", error);
+          console.error(error, "error");
+        
+          let errorMessage = "Something went wrong";
+        
+          // Check if it's an Axios error and has a response message
+          if (axios.isAxiosError(error)) {
+            errorMessage = error?.response?.data?.message || errorMessage;
+            Notify('error', errorMessage);
+          }
+        
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
         },
       });
     }

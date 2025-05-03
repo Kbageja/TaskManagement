@@ -258,51 +258,85 @@ const DashboardLayout = ({ children }: LayoutProps) => {
 
         {/* Navigation Links */}
         <nav className="mt-20 flex-col justify-center align-center">
-          <div className="space-y-6">
-            <a
-              className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsGroupModalOpen(true);
-              }}
-            >
-              <UsersRound size={28} />
-            </a>
-            <a
-              className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsUserModalOpen(true);
-              }}
-            >
-              <UserRound size={28} />
-            </a>
-            <a
-              href="#"
-              className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsTaskModalOpen(true);
-              }}
-            >
-              <PenSquare size={28} />
-            </a>
-            <a
-              href="/analysis"
-              className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
-            >
-              <LineChart size={28} />
-            </a>
-            <a
-              href="https://nudgr.vercel.app/#tutorial"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
-            >
-              <CircleHelp size={28} />
-            </a>
+      <div className="space-y-6">
+        {/* Groups Icon */}
+        <div className="relative group">
+          <a
+            className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsGroupModalOpen(true);
+            }}
+          >
+            <UsersRound size={28} />
+          </a>
+          <div className="absolute left-full ml-2 px-2 py-1 z-30 md:z-10 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            Create Groups
           </div>
-        </nav>
+        </div>
+
+        {/* User Icon */}
+        <div className="relative group">
+          <a
+            className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsUserModalOpen(true);
+            }}
+          >
+            <UserRound size={28} />
+          </a>
+          <div className="absolute left-full ml-2 px-2 py-1 z-30 md:z-10 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            Invite Sub Users
+          </div>
+        </div>
+
+        {/* Task Icon */}
+        <div className="relative group">
+          <a
+            href="#"
+            className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsTaskModalOpen(true);
+            }}
+          >
+            <PenSquare size={28} />
+          </a>
+          <div className="absolute left-full ml-2 px-2 py-1 z-30 md:z-10 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            Create Task
+          </div>
+        </div>
+
+        {/* Analysis Icon */}
+        <div className="relative group">
+          <a
+            href="/analysis"
+            className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
+          >
+            <LineChart size={28} />
+          </a>
+          <div className="absolute left-full ml-2 px-2 py-1 z-30 md:z-10 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            View Analysis
+          </div>
+        </div>
+
+        {/* Help Icon */}
+        <div className="relative group">
+          <a
+            href="https://nudgr.vercel.app/#tutorial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 px-4 py-4 hover:bg-blue-600 rounded"
+          >
+            <CircleHelp size={28} />
+          </a>
+          <div className="absolute left-full ml-2 px-2 py-1 z-30 md:z-10 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+             Tutorial
+          </div>
+        </div>
+      </div>
+    </nav>
       </div>
 
       <Dialog open={isGroupModalOpen} onOpenChange={setIsGroupModalOpen}>

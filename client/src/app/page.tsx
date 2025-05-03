@@ -119,9 +119,9 @@ const Home = () => {
               />
 
               {/* Forgot Password */}
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <Button variant="link" className="px-0 text-black text-sm">Forgot password?</Button>
-              </div>
+              </div> */}
 
               {/* Sign In Button */}
               <Button type="submit" className="w-full text-white bg-black hover:bg-black" size="lg" disabled={isPending}>

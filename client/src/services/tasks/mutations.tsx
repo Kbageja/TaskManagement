@@ -3,7 +3,7 @@ import axios from "axios";
 import Notify from "../../lib/notify";
 import { Tasks, UpdatedTask } from "../../types/tasks";
 import { createTask, updateTask } from "./api";
-
+import { toast } from "../../hooks/use-toast"
 
 
 
@@ -19,11 +19,21 @@ export const useSubmitTask = () => {
 
       },
       onError: (error) => {
-        console.error("onError: Rolling back UI update");
-  
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify("error", error?.response?.data?.message);
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       },
     });
   };
@@ -42,11 +52,21 @@ export const useUpdateTask = () => {
       }, 500);
     },
     onError: (error) => {
-      console.error("onError: Rolling back UI update");
-
+      console.error(error, "error");
+    
+      let errorMessage = "Something went wrong";
+    
+      // Check if it's an Axios error and has a response message
       if (axios.isAxiosError(error)) {
-        Notify("error", error?.response?.data?.message);
+        errorMessage = error?.response?.data?.message || errorMessage;
+        Notify('error', errorMessage);
       }
+    
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     },
   });
 };

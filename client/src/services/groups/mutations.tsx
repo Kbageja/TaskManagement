@@ -37,16 +37,21 @@ export const useDeleteGroup = () => {
       });
       },
       onError: (error) => {
-        console.error("onError: Rolling back UI update");
-        
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify("error", error?.response?.data?.message);
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
         toast({
           title: "Error",
-          description: "Failed to delete group",
+          description: errorMessage,
           variant: "destructive",
-      });
+        });
       },
     });
   };
@@ -67,16 +72,21 @@ export const useDeleteSubUser = () => {
       },
       
       onError: (error) => {
-        console.error("Error deleting sub-user:", error);
-        
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify("error", error?.response?.data?.message || "Failed to delete user");
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
         toast({
           title: "Error",
-          description: "Failed to delete user",
+          description: errorMessage,
           variant: "destructive",
-      });
+        });
       },
     });
   };
@@ -96,16 +106,21 @@ export const useCreateGroup = () => {
       });
       },
       onError: (error) => {
-        console.error("onError: Rolling back UI update");
-  
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify("error", error?.response?.data?.message);
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
         toast({
           title: "Error",
-          description: "Failed to create group",
+          description: errorMessage,
           variant: "destructive",
-      });
+        });
       },
     });
   };
@@ -146,11 +161,21 @@ export const useAcceptInvite = () => {
         return data;
       },
       onError: (error) => {
-        console.error('onError: Rolling back UI update');
-  
+        console.error(error, "error");
+      
+        let errorMessage = "Something went wrong";
+      
+        // Check if it's an Axios error and has a response message
         if (axios.isAxiosError(error)) {
-          Notify('error', error?.response?.data?.message);
+          errorMessage = error?.response?.data?.message || errorMessage;
+          Notify('error', errorMessage);
         }
+      
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       },
     });
   };
