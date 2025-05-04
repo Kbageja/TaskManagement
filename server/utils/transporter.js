@@ -11,7 +11,7 @@ export const sendEmailNotification = async (recipientEmail, task) => {
     });
 
     const mailOptions = {
-        from: `"Taskie" <${process.env.EMAIL_USER}>`,
+        from: `"Nudgr" <${process.env.EMAIL_USER}>`,
         to: recipientEmail,
         subject: "New Task Assigned",
         html: taskAssignedTemplate(task)

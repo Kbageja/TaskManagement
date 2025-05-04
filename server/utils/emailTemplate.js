@@ -24,7 +24,7 @@ export const taskAssignedTemplate = (task) => {
         </table>
 
         <p style="margin-top: 20px; text-align: center;">
-            <a href="https://your-task-dashboard.com/tasks/${task.id}" 
+            <a href="https://task-management-lcdm.vercel.app/dashboard" 
                style="padding: 10px 15px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px;">
                View Task
             </a>
